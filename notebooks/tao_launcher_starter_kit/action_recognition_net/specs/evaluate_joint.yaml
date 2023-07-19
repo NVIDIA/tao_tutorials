@@ -1,0 +1,29 @@
+model_config:
+  model_type: joint
+  backbone: resnet18
+  rgb_seq_length: 3
+  of_seq_length: 16
+  input_type: 2d
+  sample_strategy: consecutive
+  dropout_ratio: 0.0
+dataset_config:
+  label_map:
+    walk: 0
+    sits: 1
+    squa: 2
+    fall: 3
+    bend: 4
+  output_shape:
+  - 224
+  - 224
+  batch_size: 32
+  workers: 8
+  augmentation_config:
+    train_crop_type: no_crop
+    #scales: [1.0, 0.875]
+    horizontal_flip_prob: 0.0
+    rgb_input_mean: [0.5]
+    rgb_input_std: [0.5]
+    of_input_mean: [0.5]
+    of_input_std: [0.5]
+    val_center_crop: False

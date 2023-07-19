@@ -1,0 +1,19 @@
+gen_trt_engine:
+  gpu_id: 0
+  input_width: 960
+  input_height: 544
+  tensorrt:
+    data_type: fp32
+    workspace_size: 2048
+    min_batch_size: 1
+    opt_batch_size: 8
+    max_batch_size: 8
+dataset:
+  num_classes: 91
+  batch_size: -1
+model:
+  backbone: resnet_50
+  num_feature_levels: 2
+  num_queries: 300  
+  with_box_refine: True
+  aux_loss: False

@@ -1,0 +1,24 @@
+name: '<replace-with-unique-name-for-environment>'
+backend:
+  bucket: '<replace-with-gcp-gcs-state-bucket>'
+  credentials: >
+    <replace-with-service-account-access-key-json-content>
+provider:
+  project: '<replace-with-gcp-project-id>'
+  credentials: >
+    <replace-with-service-account-access-key-json-content>
+spec:
+  region: 'us-west1'
+  zone: 'us-west1-a'
+  network_cidr_range: '10.0.0.0/24'
+  machine_type: 'n1-standard-32'
+  node_count: 1
+  gpu_type: 'nvidia-tesla-t4' # set to null if machine_type comes with in-built gpu
+  gpu_count: 1 # set to null if machine_type comes with in-built gpu
+  ngc_api_key: '<replace-with-ngc-api-key>'
+  ngc_email: '<replace-with-ngc-email>'
+  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-toolkit-api-4.0.0.tgz'
+  chart_values: |
+    ---
+  gpu_operator_version: 'v23.3.2'
+  nvidia_driver_version: '525.85.12'

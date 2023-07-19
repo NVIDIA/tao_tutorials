@@ -1,0 +1,51 @@
+results_dir: "???"
+model:
+  backbone: resnet_101
+  pretrain_choice: "imagenet"
+  pretrained_model_path: null
+  input_width: 224
+  input_height: 224 
+  feat_dim: 2048
+train:
+  optim:
+    name: Adam
+    steps: [40, 70]
+    gamma: 0.1
+    embedder:
+      bias_lr_factor: 1
+      weight_decay: 0.0001
+      weight_decay_bias: 0.0005
+      base_lr: 0.000001
+      momentum: 0.9
+    trunk:
+      bias_lr_factor: 1
+      weight_decay: 0.0001
+      weight_decay_bias: 0.0005
+      base_lr: 0.00001
+      momentum: 0.9
+    warmup_factor: 0.01
+    warmup_iters: 10
+    warmup_method: linear
+    triplet_loss_margin: 0.3
+    miner_function_margin: 0.1
+  num_epochs: 150 
+  resume_training_checkpoint_path: null
+  checkpoint_interval: 1
+  smooth_loss: False
+  batch_size: 16
+  val_batch_size: 16
+dataset:
+  train_dataset: "???"
+  val_dataset:
+    reference: "???"
+    query: "???"
+  workers: 12
+  pixel_mean: [0.485, 0.456, 0.406]
+  pixel_std: [0.226, 0.226, 0.226]
+  prob: 0.5
+  re_prob: 0.5
+  num_instance: 4
+  color_augmentation: 
+    enabled: True
+  gaussian_blur:
+    enabled: True

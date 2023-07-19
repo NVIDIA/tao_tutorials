@@ -1,0 +1,22 @@
+model_config:
+  model_type: of
+  backbone: resnet18
+  of_seq_length: 3
+  input_type: 3d
+  sample_strategy: consecutive 
+  dropout_ratio: 0.0
+dataset_config:
+  label_map:
+    fall_floor: 0
+    ride_bike: 1
+  output_shape:
+  - 224
+  - 224
+  batch_size: 32
+  workers: 8
+  augmentation_config:
+    train_crop_type: no_crop
+    horizontal_flip_prob: 0.0
+    of_input_mean: [0.5]
+    of_input_std: [0.5]
+    val_center_crop: False

@@ -1,0 +1,75 @@
+results_dir: /results
+encryption_key: nvidia_tao
+model:
+  model_type: Siamese_3
+  model_backbone: custom
+  embedding_vectors: 5
+  margin: 2.0
+dataset:
+  train_dataset:
+    csv_path: /data/dataset_convert/train_combined.csv
+    images_dir: /data/images/
+  validation_dataset:
+    csv_path: /data/dataset_convert/valid_combined.csv
+    images_dir: /data/images/
+  test_dataset:
+    csv_path: /data/dataset_convert/valid_combined.csv
+    images_dir: /data/images/
+  infer_dataset:
+    csv_path: /data/dataset_convert/valid_combined.csv
+    images_dir: /data/images/
+  image_ext: .jpg
+  batch_size: 16
+  workers: 8
+  fpratio_sampling: 0.1
+  num_input: 4
+  input_map:
+    LowAngleLight: 0
+    SolderLight: 1
+    UniformLight: 2
+    WhiteLight: 3
+  concat_type: linear
+  grid_map:
+    x: 2
+    y: 2
+  output_shape:
+    - 128
+    - 128
+  augmentation_config:
+    rgb_input_mean: [0.485, 0.456, 0.406]
+    rgb_input_std: [0.229, 0.224, 0.225]
+train:
+  pretrained_model_path: /workspace/tao-experiments/optical_inspection/results/pretrained/optical_inspection_vtrainable_v1.0/oi_model.pth
+  optim:
+    type: Adam
+    lr: 0.0005
+  loss: contrastive
+  num_epochs: 15
+  checkpoint_interval: 5
+  validation_interval: ${train.checkpoint_interval}
+  results_dir: "${results_dir}/train"
+  tensorboard:
+    enabled: True
+evaluate:
+  gpu_id: 0
+  checkpoint: "${results_dir}/train/oi_model.pth"
+  results_dir: "${results_dir}/evaluate"
+export:
+  checkpoint: "${results_dir}/train/oi_model.pth"
+  results_dir: "${results_dir}/export"
+  onnx_file: "${export.results_dir}/oi_model.onnx"
+  batch_size: ${dataset.batch_size}
+  input_height: 512
+  input_width: 128
+inference:
+  gpu_id: 0
+  checkpoint: "${results_dir}/train/oi_model.pth"
+  results_dir: "${results_dir}/inference"
+  trt_engine: "${gen_trt_engine.trt_engine}"
+  batch_size: ${dataset.batch_size}
+gen_trt_engine:
+  results_dir: "${results_dir}/gen_trt_engine"
+  onnx_file: "${export.onnx_file}"
+  trt_engine: "${gen_trt_engine.results_dir}/oi_model.trt"
+  batch_size: ${dataset.batch_size}
+  

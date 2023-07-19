@@ -1,0 +1,43 @@
+results_dir: "/results/kinetics"
+encryption_key: nvidia_tao
+model:
+  model_type: ST-GCN
+  pretrained_model_path: ""
+  input_channels: 3
+  dropout: 0.5
+  graph_layout: "openpose"
+  graph_strategy: "spatial"
+  edge_importance_weighting: True
+dataset:
+  train_dataset:
+    data_path: "/data/kinetics/train_data.npy"
+    label_path: "/data/kinetics/train_label.pkl"
+  val_dataset:
+    data_path: "/data/kinetics/val_data.npy"
+    label_path: "/data/kinetics/val_label.pkl"
+  num_classes: 5
+  label_map:
+    front_raises: 0
+    pull_ups: 1
+    clean_and_jerk: 2
+    presenting_weather_forecast: 3
+    deadlifting: 4
+  random_choose: True
+  random_move: True
+  window_size: 150
+  batch_size: 16
+  num_workers: 1
+train:
+  optim:
+    lr: 0.1
+    momentum: 0.9
+    nesterov: True
+    weight_decay: 0.0001
+    lr_scheduler: "MultiStep"
+    lr_steps:
+    - 20
+    - 30
+    - 40
+    lr_decay: 0.1
+  num_epochs: 50
+  checkpoint_interval: 5

@@ -1,0 +1,100 @@
+__class_name__: BpNetTrainer
+checkpoint_dir: /workspace/tao-experiments/bpnet/models/exp_m1_retrain
+log_every_n_secs: 30
+checkpoint_n_epoch: 5
+num_epoch: 50
+summary_every_n_steps: 20
+infrequent_summary_every_n_steps: 0
+validation_every_n_epoch: 5
+max_ckpt_to_keep: 100
+random_seed: 42
+pretrained_weights: /workspace/tao-experiments/bpnet/models/exp_m1_pruned/bpnet_model.pruned-0.2.hdf5
+load_graph: True
+finetuning_config:
+  is_finetune_exp: False
+  checkpoint_path: null
+  ckpt_epoch_num: 0
+use_stagewise_lr_multipliers: True
+dataloader:
+  __class_name__: BpNetDataloader
+  batch_size: 10
+  pose_config:
+    __class_name__: BpNetPoseConfig
+    target_shape: [32, 32]
+    pose_config_path: /workspace/examples/bpnet/model_pose_config/bpnet_18joints.json
+  image_config:
+    image_dims:
+      height: 256
+      width: 256
+      channels: 3
+    image_encoding: jpg
+  dataset_config:
+    root_data_path: /workspace/tao-experiments/bpnet/data/
+    train_records_folder_path: /workspace/tao-experiments/bpnet/data
+    train_records_path: [train-fold-000-of-001]
+    val_records_folder_path: /workspace/tao-experiments/bpnet/data
+    val_records_path: [val-fold-000-of-001]
+    dataset_specs:
+      coco: /workspace/examples/bpnet/data_pose_config/coco_spec.json
+  normalization_params: 
+    image_scale: [256.0, 256.0, 256.0]
+    image_offset: [0.5, 0.5, 0.5]
+    mask_scale: [255.0]
+    mask_offset: [0.0]
+  augmentation_config:
+    __class_name__: AugmentationConfig
+    spatial_augmentation_mode: person_centric
+    spatial_aug_params:
+      flip_lr_prob: 0.5
+      flip_tb_prob: 0.0
+      rotate_deg_max: 40.0
+      rotate_deg_min: -40.0
+      zoom_prob: 0.0
+      zoom_ratio_min: 1.0
+      zoom_ratio_max: 1.0
+      translate_max_x: 40.0
+      translate_min_x: -40.0
+      translate_max_y: 40.0
+      translate_min_y: -40.0
+      use_translate_ratio: False
+      translate_ratio_max: 0.2
+      translate_ratio_min: -0.2
+      target_person_scale: 0.6
+    identity_spatial_aug_params:
+      null
+  label_processor_config:
+    paf_gaussian_sigma: 0.03
+    heatmap_gaussian_sigma: 7.0
+    paf_ortho_dist_thresh: 1.0
+  shuffle_buffer_size: 20000
+model:
+  __class_name__: BpNetLiteModel
+  backbone_attributes:
+    architecture: vgg
+    mtype: default
+    use_bias: False
+  stages: 3
+  heat_channels: 19
+  paf_channels: 38
+  use_self_attention: False
+  data_format: channels_last
+  use_bias: True
+  regularization_type: l1
+  kernel_regularization_factor: 5.0e-4
+  bias_regularization_factor: 0.0
+optimizer:
+  __class_name__: WeightedMomentumOptimizer
+  learning_rate_schedule:
+    __class_name__: SoftstartAnnealingLearningRateSchedule
+    soft_start: 0.05
+    annealing: 0.5
+    base_learning_rate: 2.e-5
+    min_learning_rate: 8.e-08
+    last_step: null
+  grad_weights_dict: null
+  weight_default_value: 1.0
+  momentum: 0.9
+  use_nesterov: False
+loss:
+  __class_name__: BpNetLoss
+inference_spec: /workspace/examples/bpnet/specs/infer_spec_retrained.yaml

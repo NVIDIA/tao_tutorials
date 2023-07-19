@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - gpu-operator-values.yml
+  tasks:
+   - name: check NVIDIA driver modules are loaded
+     shell: "lsmod | grep -i nvidia"
+     register: nvidia_mod
+     no_log: True
+     failed_when: false
+   - name: uninstall nvidia using installer
+     when: nvidia_mod.rc != 1 and install_driver == true
+     command: "nvidia-installer --uninstall --silent"
+     failed_when: false
+   - name: uninstall nvidia and cuda drivers
+     when: nvidia_mod.rc != 1 and install_driver == true
+     apt:
+       name: ['libnvidia-*', 'nvidia-*', 'cuda-*']
+       state: absent
+       purge: yes
+       force: yes
+       autoremove: yes
+       autoclean: yes
+     failed_when: false
+   - name: reboot the system
+     when: nvidia_mod.rc != 1 and install_driver == true
+     reboot:
+       reboot_timeout: 900

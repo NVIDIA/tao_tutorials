@@ -1,0 +1,25 @@
+results_dir: '/results'
+checkpoint: '/workspace/tao-experiments/pretrained_mask_auto_label_vvit-base/checkpoint-99.pth'
+strategy: 'ddp'
+model:
+  arch: 'vit-mae-base/16'
+train:
+  lr: 0.000001
+  num_epochs: 10
+  warmup_epochs: 0
+  batch_size: 4
+  use_amp: True
+inference:
+  load_mask: False
+  ann_path: /data/raw-data/annotations/instances_val2017.json
+  img_dir: /data/raw-data/val2017/
+  label_dump_path: '/results/instances_val2017_mal.json'
+dataset:
+  crop_size: 512
+  train_ann_path: /data/raw-data/annotations/instances_train2017.json
+  train_img_dir: /data/raw-data/train2017/
+  val_ann_path: /data/raw-data/annotations/instances_val2017.json
+  val_img_dir: /data/raw-data/val2017/
+evaluate:
+  batch_size: 4
+  use_teacher_test: False

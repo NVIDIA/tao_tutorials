@@ -1,0 +1,10 @@
+gpu_ids: [0]
+results_dir: '/results'
+checkpoint: /results/mask_auto_label_vtrainable_v1.0/vit-mae-base-16epoch=10.pth
+model:
+  arch: vit-mae-base/16
+inference:
+  load_mask: False
+  ann_path: '/results/data.json'
+  img_dir: '/data/images'
+  label_dump_path: '/results/data_mal.json'

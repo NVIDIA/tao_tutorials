@@ -1,0 +1,89 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: check os
+    assert:
+      that: "ansible_distribution == 'Ubuntu'"
+    no_log: true
+  - name: check os version
+    assert:
+      that: "ansible_distribution_version in ['18.04', '20.04']"
+    no_log: true
+  - name: check disk size sufficient
+    when: mode != 'uninstall' and mode != 'validate'
+    assert:
+      that: "ansible_facts.mounts | json_query('sum([?mount == `/`].size_available)') >= 16000000000"
+    no_log: true
+  - name: check sufficient memory
+    assert:
+      that: "ansible_memtotal_mb >= 30517"
+    no_log: true
+  - name: check sufficient number of cpu cores
+    assert:
+      that: "ansible_processor_vcpus >= 8"
+    no_log: true
+  - name: check sudo privileges
+    become: true
+    stat:
+      path: /root
+    no_log: true
+  - name: capture gpus per node
+    shell: "lspci -mm | grep '3D controller' | awk -F '\"' '{print $6}' | sort -u | wc -l"
+    register: gpus_per_node
+  - name: check not more than 1 gpu per node
+    assert:
+      that: "{{ gpus_per_node.stdout }} <= 1"
+    no_log: true
+  - name: check exactly 1 master
+    run_once: true
+    local_action: assert
+    args:
+      that: "groups.master | length == 1"
+    no_log: true
+  - name: capture host details
+    run_once: true
+    local_action: set_fact
+    args:
+      host_details:
+        "{{
+          groups.all |
+          map('extract', hostvars) |
+          list |
+          json_query('[].{
+            host: ansible_hostname,
+            os: ansible_distribution,
+            os_version: ansible_distribution_version
+          }')
+        }}"
+    no_log: true
+  - name: print host details
+    run_once: true
+    local_action: debug
+    args:
+      var: host_details
+  - name: check all instances have single os
+    run_once: true
+    local_action: assert
+    args:
+      that: "host_details | json_query('[].os') | unique | length == 1"
+    no_log: true
+  - name: check all instances have single os version
+    run_once: true
+    local_action: assert
+    args:
+      that: "host_details | json_query('[].os_version') | unique | length == 1"
+    no_log: true
+  - name: capture os
+    run_once: true
+    local_action: copy
+    args:
+      content: "{{ host_details | json_query('[0].os') }}"
+      dest: target-os
+  - name: capture os version
+    run_once: true
+    local_action: copy
+    args:
+      content: "{{ host_details | json_query('[0].os_version') }}"
+      dest: target-os-version

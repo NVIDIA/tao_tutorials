@@ -1,0 +1,50 @@
+results_dir: "/results/nvidia"
+encryption_key: nvidia_tao
+model:
+  model_type: ST-GCN
+  pretrained_model_path: ""
+  input_channels: 3
+  dropout: 0.5
+  graph_layout: "nvidia"
+  graph_strategy: "spatial"
+  edge_importance_weighting: True
+dataset:
+  train_dataset:
+    data_path: "/data/nvidia/train_data.npy"
+    label_path: "/data/nvidia/train_label.pkl"
+  val_dataset:
+    data_path: "/data/nvidia/val_data.npy"
+    label_path: "/data/nvidia/val_label.pkl"
+  num_classes: 6
+  label_map:
+    sitting_down: 0
+    getting_up: 1
+    sitting: 2
+    standing: 3
+    walking: 4
+    jumping: 5
+  batch_size: 16
+  num_workers: 1
+train:
+  optim:
+    lr: 0.1
+    momentum: 0.9
+    nesterov: True
+    weight_decay: 0.0001
+    lr_scheduler: "MultiStep"
+    lr_steps:
+    - 10
+    - 60
+    lr_decay: 0.1
+  num_epochs: 70
+  checkpoint_interval: 5
+dataset_convert:
+  pose_type: "3dbp"
+  num_joints: 34
+  input_width: 1920
+  input_height: 1080
+  focal_length: 1200.0
+  sequence_length_max: 300
+  sequence_length_min: 10
+  sequence_length: 100
+  sequence_overlap: 0.5

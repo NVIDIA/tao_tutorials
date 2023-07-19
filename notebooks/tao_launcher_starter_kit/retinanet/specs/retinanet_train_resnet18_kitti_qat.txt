@@ -1,0 +1,93 @@
+random_seed: 42
+retinanet_config {
+  aspect_ratios_global: "[1.0, 2.0, 0.5]"
+  scales: "[0.045, 0.09, 0.2, 0.4, 0.55, 0.7]"
+  two_boxes_for_ar1: false
+  clip_boxes: false
+  loss_loc_weight: 0.8
+  focal_loss_alpha: 0.25
+  focal_loss_gamma: 2.0
+  variances: "[0.1, 0.1, 0.2, 0.2]"
+  arch: "resnet"
+  nlayers: 18
+  n_kernels: 1
+  n_anchor_levels: 1
+  feature_size: 256
+  freeze_bn: False
+  freeze_blocks: 0
+}
+training_config {
+  enable_qat: True
+  pretrain_model_path: "YOUR_PRETRAINED_MODEL"
+  batch_size_per_gpu: 8
+  num_epochs: 100
+  n_workers: 2
+  checkpoint_interval: 10
+  learning_rate {
+    soft_start_annealing_schedule {
+      min_learning_rate: 4e-5
+      max_learning_rate: 1.5e-2
+      soft_start: 0.1
+      annealing: 0.3
+    }
+  }
+  regularizer {
+    type: L1
+    weight: 2e-5
+  }
+  optimizer {
+    sgd {
+      momentum: 0.9
+      nesterov: True
+    }
+  }
+}
+eval_config {
+  validation_period_during_training: 10
+  average_precision_mode: SAMPLE
+  batch_size: 8
+  matching_iou_threshold: 0.5
+}
+nms_config {
+  confidence_threshold: 0.01
+  clustering_iou_threshold: 0.6
+  top_k: 200
+}
+augmentation_config {
+    output_width: 1248
+    output_height: 384
+    output_channel: 3
+}
+dataset_config {
+  data_sources: {
+    tfrecords_path: "/workspace/tao-experiments/data/retinanet/tfrecords/kitti_train*"
+  }
+  target_class_mapping {
+      key: "car"
+      value: "car"
+  }
+  target_class_mapping {
+      key: "pedestrian"
+      value: "pedestrian"
+  }
+  target_class_mapping {
+      key: "cyclist"
+      value: "cyclist"
+  }
+  target_class_mapping {
+      key: "van"
+      value: "car"
+  }
+  target_class_mapping {
+      key: "person_sitting"
+      value: "pedestrian"
+  }
+ target_class_mapping {
+      key: "truck"
+      value: "car"
+  }
+   validation_data_sources: {
+    image_directory_path: "/workspace/tao-experiments/data/kitti_split/val/image"
+    label_directory_path: "/workspace/tao-experiments/data/kitti_split/val/label"
+  } 
+}

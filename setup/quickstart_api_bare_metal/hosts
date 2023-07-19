@@ -1,0 +1,8 @@
+# List all hosts below.
+# For single node deployment, listing the master is enough.
+[master]
+# Example of host accessible using ssh private key
+# 1.1.1.1 ansible_ssh_user='ubuntu' ansible_ssh_private_key_file='/path/to/key.pem'
+[nodes]
+# Example of host accessible using ssh password
+# 1.1.1.2 ansible_ssh_user='ubuntu' ansible_ssh_pass='some-password' ansible_ssh_extra_args='-o StrictHostKeyChecking=no'

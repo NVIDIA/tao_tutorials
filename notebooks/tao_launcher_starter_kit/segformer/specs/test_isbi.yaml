@@ -1,0 +1,37 @@
+model:
+  input_height: 512
+  input_width: 512
+  backbone:
+    type: "mit_b1"
+dataset:
+  img_norm_cfg:
+      mean:
+          - 127.5
+          - 127.5
+          - 127.5
+      std:
+          - 127.5
+          - 127.5
+          - 127.5
+  test_dataset:
+      img_dir: /data/images/val
+      ann_dir: /data/masks/val
+  input_type: "grayscale"
+  data_root: /tlt-pytorch
+  palette:
+    - seg_class: foreground
+      rgb:
+        - 0
+        - 0
+        - 0
+      label_id: 0
+      mapping_class: foreground
+    - seg_class: background
+      rgb:
+        - 255
+        - 255
+        - 255
+      label_id: 1
+      mapping_class: background
+  batch_size: 1
+  workers_per_gpu: 1

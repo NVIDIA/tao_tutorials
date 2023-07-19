@@ -1,0 +1,54 @@
+export:
+  input_height: 512
+  input_width: 512
+  input_channel: 3
+model:
+  input_height: 512
+  input_width: 512
+  backbone:
+    type: "mit_b1"
+dataset:
+  img_norm_cfg:
+      mean:
+          - 127.5
+          - 127.5
+          - 127.5
+      std:
+          - 127.5
+          - 127.5
+          - 127.5
+  test_dataset:
+      img_dir: /data/images/val
+      ann_dir: /data/masks/val
+      pipeline:
+        augmentation_config:
+          resize:
+            keep_ratio: True
+  input_type: "grayscale"
+  data_root: /tlt-pytorch
+  palette:
+    - seg_class: foreground
+      rgb:
+        - 0
+        - 0
+        - 0
+      label_id: 0
+      mapping_class: foreground
+    - seg_class: background
+      rgb:
+        - 255
+        - 255
+        - 255
+      label_id: 1
+      mapping_class: background
+  workers_per_gpu: 1
+  batch_size: -1
+gen_trt_engine:
+  input_width: 512
+  input_height: 512
+  tensorrt:
+    data_type: FP32
+    workspace_size: 1024
+    min_batch_size: 1
+    opt_batch_size: 1
+    max_batch_size: 1

@@ -1,0 +1,237 @@
+---
+- hosts: all
+  tasks:
+  - name: install nfs-common
+    become: true
+    apt:
+      name: ['nfs-common']
+      state: present
+      update_cache: yes
+
+- hosts: master[0]
+  vars_files:
+  - tao-toolkit-api-ansible-values.yml
+  tasks:
+  - name: install nginx ingress controller
+    shell: "{{ item }}"
+    args:
+      warn: false
+    with_items:
+    - helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx --force-update
+    - helm repo update
+    - helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --set controller.service.type=NodePort --set controller.service.nodePorts.http=32080 --set controller.service.nodePorts.https=32443 --set controller.admissionWebhooks.enabled=false
+  - name: install nfs server
+    become: true
+    block:
+    - name: install nfs-kernel-server
+      apt:
+        name: ['nfs-kernel-server']
+        state: present
+        update_cache: yes
+    - name: create export directory
+      file:
+        path: /mnt/nfs_share
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0777'
+    - name: create export config
+      lineinfile:
+        path: /etc/exports
+        regexp: '^/mnt/nfs_share'
+        line: '/mnt/nfs_share  *(rw,sync,no_subtree_check)'
+    - name: export filesystem
+      command: 'exportfs -a'
+    - name: restart nfs-kernel-server
+      systemd:
+        state: restarted
+        name: nfs-kernel-server
+  - name: install storage provisioner
+    shell: "{{ item }}"
+    args:
+      warn: false
+    with_items:
+    - helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/ --force-update
+    - helm repo update
+    - helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --atomic --wait nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server={{ ansible_default_ipv4.address }} --set nfs.path=/mnt/nfs_share
+  - name: setup imagepullsecret
+    shell: "{{ item }}"
+    args:
+      warn: false
+    with_items:
+    - kubectl delete secret 'imagepullsecret' --ignore-not-found
+    - kubectl create secret docker-registry 'imagepullsecret' --docker-server='nvcr.io' --docker-username='$oauthtoken' --docker-password={{ ngc_api_key }} --docker-email={{ ngc_email }} --namespace='default'
+  - name: capture node names
+    shell: "kubectl get nodes --no-headers --output=jsonpath='{.items[*].metadata.name}' | tr '[:blank:]' '\n'"
+    register: node_names
+  - name: setup nvidia-smi on each node
+    shell: "kubectl delete pod nvidia-smi-{{ item }} --ignore-not-found && kubectl run nvidia-smi-{{ item }} --image=nvidia/cuda:11.0.3-base --restart=OnFailure --overrides='{\"spec\":{\"nodeSelector\":{\"kubernetes.io/hostname\":\"{{ item }}\"}}}' -- sleep infinity"
+    with_items: "{{ node_names.stdout_lines }}"
+  - name: label nodes with accelerator
+    shell: "kubectl label nodes {{ item }} --overwrite accelerator=$(kubectl exec nvidia-smi-{{ item }} -- nvidia-smi --query-gpu=gpu_name --format=csv,noheader | tr '[:blank:]' '-' | sort -u | head -n 1)"
+    with_items: "{{ node_names.stdout_lines }}"
+  - name: copy tao-toolkit-api helm values to master
+    copy:
+      src: "{{ api_values }}"
+      dest: "/tmp/tao-toolkit-api-helm-values.yml"
+      remote_src: no
+  - name: add proxy config
+    when: https_proxy is defined and https_proxy | length > 0
+    shell: "{{ item }}"
+    with_items:
+    - "sed -i \"/^httpsProxy:/d\" /tmp/tao-toolkit-api-helm-values.yml"
+    - "echo \"\nhttpsProxy: {{ https_proxy }}\" >> /tmp/tao-toolkit-api-helm-values.yml"
+  - name: add self-signed CA cert config
+    when: my_cert is defined and my_cert == true
+    shell: "{{ item }}"
+    with_items:
+    - "kubectl delete configmap my-cert -n default >> /dev/null; true"
+    - kubectl create configmap my-cert -n default --from-file={{lookup('pipe', 'pwd')}}/my-cert.crt
+    - "sed -i \"/^myCertConfig:/d\" /tmp/tao-toolkit-api-helm-values.yml"
+    - "echo \"\nmyCertConfig: my-cert\" >> /tmp/tao-toolkit-api-helm-values.yml"
+  - name: install tao-toolkit-api
+    shell: "helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --namespace default --atomic --wait tao-toolkit-api {{ api_chart }} --values /tmp/tao-toolkit-api-helm-values.yml --username='$oauthtoken' --password={{ ngc_api_key }}"
+
+- hosts: all
+  gather_facts: yes
+  become: false
+  vars_files:
+  - tao-toolkit-api-ansible-values.yml
+  tasks:
+  - name: capture cluster ips
+    run_once: true
+    local_action: set_fact
+    args:
+      cluster_ips:
+        "{{
+          groups.all |
+          map('extract', hostvars) |
+          list |
+          json_query('[].ansible_default_ipv4.address')
+        }}"
+  - name: store cluster ips
+    run_once: true
+    copy:
+      content: "{{ cluster_ips }}"
+      dest: "/tmp/cluster_ips"
+  - name: copy ~/.kube/config to /tmp/kube-config
+    run_once: true
+    copy:
+      src: "${HOME}/.kube/config"
+      dest: "/tmp/kube-config"
+      remote_src: yes
+  - name: modify /tmp/kube-config for remote access
+    run_once: true
+    when: "ansible_default_ipv4.address != inventory_hostname"
+    block:
+    - name: ensure api endpoint uses publicly accessible ip
+      replace:
+        path: /tmp/kube-config
+        regexp: "{{ ansible_default_ipv4.address }}"
+        replace: "{{ inventory_hostname }}"
+    - name: generify context name
+      replace:
+        path: /tmp/kube-config
+        regexp: 'kubernetes-admin@kubernetes'
+        replace: "kubernetes"
+    - name: replace generic cluster user and context name in kubeconfig with provided cluster name
+      replace:
+        path: /tmp/kube-config
+        regexp: 'kubernetes'
+        replace: "{{ cluster_name }}"
+  - name: fetch file /tmp/cluster_ips from remote to local
+    run_once: true
+    fetch:
+      src: "/tmp/cluster_ips"
+      dest: "/tmp/"
+      flat: yes
+  - name: fetch /tmp/kube-config from remote to local
+    run_once: true
+    fetch:
+      src: "/tmp/kube-config"
+      dest: "/tmp/kube-config"
+      flat: yes
+
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: register cluster ips
+    register: cluster_ips
+    shell: "cat /tmp/cluster_ips"
+  - name: install kubectl
+    become: true
+    when: "ansible_default_ipv4.address not in cluster_ips"
+    block:
+    - name: add an kubernetes apt signing key for ubuntu
+      when: "ansible_distribution == 'Ubuntu'"
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+    - name: adding kubernetes apt repository for ubuntu
+      when: "ansible_distribution == 'Ubuntu'"
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+    - name: install kubectl
+      become: true
+      apt:
+        name: ['kubectl']
+        state: present
+  - name: install helm
+    when: "ansible_default_ipv4.address not in cluster_ips"
+    block:
+    - name: check if helm is installed
+      shell: command -v helm >/dev/null 2>&1
+      register: helm_exists
+      no_log: True
+      failed_when: false
+    - name: install helm on ubuntu 18.04
+      when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04' and helm_exists.rc > 0"
+      become: true
+      command: "{{ item }}"
+      args:
+        warn: false
+      with_items:
+      - curl -O https://get.helm.sh/helm-v3.3.3-linux-amd64.tar.gz
+      - tar -xvzf helm-v3.3.3-linux-amd64.tar.gz
+      - cp linux-amd64/helm /usr/local/bin/
+      - chmod 755 /usr/local/bin/helm
+      - rm -rf helm-v3.3.3-linux-amd64.tar.gz linux-amd64
+    - name: install helm on ubuntu 20.04
+      when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' and helm_exists.rc > 0"
+      become: true
+      command: "{{ item }}"
+      args:
+        warn: false
+      with_items:
+      - curl -O https://get.helm.sh/helm-v3.8.1-linux-amd64.tar.gz
+      - tar -xvzf helm-v3.8.1-linux-amd64.tar.gz
+      - cp linux-amd64/helm /usr/local/bin/
+      - chmod 755 /usr/local/bin/helm
+      - rm -rf helm-v3.8.1-linux-amd64.tar.gz linux-amd64
+  - name: setup kubeconfig
+    when: "ansible_default_ipv4.address not in cluster_ips"
+    block:
+    - name: create kube directory
+      file:
+        path: "{{ lookup('env','HOME') }}/.kube"
+        state: directory
+    - name: ensure kubeconfig file exists
+      file:
+        path: "{{ lookup('env','HOME') }}/.kube/config"
+        state: touch
+        mode: '0600'
+    - name: merge kubeconfig to existing
+      command: kubectl config view --flatten
+      environment:
+        KUBECONFIG: "/tmp/kube-config:{{ lookup('env','HOME') }}/.kube/config"
+      register: merged_kubeconfig
+    - name: make merged-kubeconfig default
+      copy:
+        content: "{{ merged_kubeconfig.stdout }}"
+        dest: "{{ lookup('env','HOME') }}/.kube/config"
+        mode: '0600'
+        backup: yes

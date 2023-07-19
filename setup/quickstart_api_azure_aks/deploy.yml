@@ -1,0 +1,28 @@
+name: '<replace-with-unique-name-for-environment>'
+backend:
+  tenant_id: '<replace-with-your-azure-tenant-id>'
+  subscription_id: '<replace-with-your-azure-subscription-id>'
+  client_id: '<replace-with-your-azure-app-registration-client-id>'
+  client_secret: '<replace-with-your-azure-app-registration-client-secret>'
+  resource_group_name: '<replace-with-your-state-storage-account-resource-group-name>'
+  storage_account_name: '<replace-with-your-state-storage-account-name>'
+  container_name: '<replace-with-your-state-storage-container-name>'
+provider:
+  tenant_id: '<replace-with-your-azure-tenant-id>'
+  subscription_id: '<replace-with-your-azure-subscription-id>'
+  client_id: '<replace-with-your-azure-app-registration-client-id>'
+  client_secret: '<replace-with-your-azure-app-registration-client-secret>'
+spec:
+  region: "Central India"
+  virtual_network_address_space: "10.10.0.0/24"
+  node_pool_name: '<replace-with-a-name-for-node-pool>' # only alphanumeric, not more than 12 chars
+  vm_size: "Standard_NC4as_T4_v3"
+  node_count: 1
+  ssh_public_key: '<replace-with-ssh-public-key>'
+  ngc_api_key: '<replace-with-ngc-api-key>'
+  ngc_email: '<replace-with-ngc-email>'
+  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-toolkit-api-4.0.0.tgz'
+  chart_values: |
+    ---
+  gpu_operator_version: 'v23.3.2'
+  nvidia_driver_version: '525.85.12'

@@ -1,0 +1,33 @@
+train:
+  num_gpus: 1
+  num_nodes: 1
+  validation_interval: 1
+  optim:
+    lr_backbone: 2e-05
+    lr: 2e-4
+    lr_steps: [11]
+    momentum: 0.9
+  num_epochs: 12
+dataset:
+  train_data_sources:
+    - image_dir: /data/raw-data/train2017/
+      json_file: /data/raw-data/annotations/instances_train2017.json
+  val_data_sources:
+    - image_dir: /data/raw-data/val2017/
+      json_file: /data/raw-data/annotations/instances_val2017.json
+  num_classes: 91
+  batch_size: 4
+  workers: 8
+  augmentation:
+    fixed_padding: False
+model:
+  backbone: fan_tiny
+  train_backbone: True
+  pretrained_backbone_path: /workspace/tao-experiments/dino/pretrained_dino_nvimagenet_vfan_hybrid_tiny_nvimagenet/fan_hybrid_tiny_nvimagenetv2.pth.tar
+  num_feature_levels: 4
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 300
+  num_select: 100
+  dropout_ratio: 0.0
+  dim_feedforward: 2048

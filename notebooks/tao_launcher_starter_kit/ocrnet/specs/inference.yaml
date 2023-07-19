@@ -1,0 +1,21 @@
+encryption_key: nvidia_tao
+gpu_id: 0
+model: /results/experiment_unpruned/best_accuracy.tlt
+inference_dataset_dir: /workspace/tao-experiments/ocrnet/test_samples
+model_config:
+  TPS: True
+  backbone: ResNet
+  feature_channel: 512
+  sequence: BiLSTM
+  hidden_size: 256
+  prediction: CTC
+dataset_config:
+  character_list_file: /workspace/tao-experiments/ocrnet/ocrnet_characters_l
+  img_width: 100
+  img_height: 32
+  img_channel: 1
+  max_label_length: 25
+  batch_size: 32
+  workers: 4
+  augmentation_config:
+    keep_aspect_ratio: False

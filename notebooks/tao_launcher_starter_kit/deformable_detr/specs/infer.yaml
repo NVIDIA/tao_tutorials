@@ -1,0 +1,26 @@
+inference:
+  conf_threshold: 0.5
+  input_width: 960
+  input_height: 544
+  color_map:
+    person: green
+    car: red
+    cat: blue
+dataset:
+  infer_data_sources:
+    image_dir: 
+     - /data/raw-data/val2017/
+    classmap: /data/raw-data/annotations/classmap.txt
+  num_classes: 91
+  batch_size: 8
+  workers: 8
+  augmentation:
+    fixed_padding: False
+model:
+  backbone: resnet_50
+  num_feature_levels: 2
+  return_interm_indices: [1, 2]
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 300
+  with_box_refine: True

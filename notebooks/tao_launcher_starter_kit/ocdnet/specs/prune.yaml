@@ -1,0 +1,27 @@
+prune:
+  checkpoint: /results/train/model_best.pth
+  pruning_thresh: 0.1
+  results_dir: /results/prune
+
+dataset:
+  validate_dataset:
+      data_path: ['/data/ocdnet/test']
+      args:
+        pre_processes:
+          - type: Resize2D
+            args:
+              short_size:
+                - 1280
+                - 736
+              resize_text_polys: true
+        img_mode: BGR
+        filter_keys: []
+        ignore_tags: ['*', '###']
+      loader:
+        batch_size: 1
+        shuffle: false
+        pin_memory: false
+        num_workers: 1
+
+
+

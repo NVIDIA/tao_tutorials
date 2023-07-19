@@ -1,0 +1,6 @@
+---
+- hosts: master[0]
+  tasks:
+  - name: clear old gpu-operator artifacts
+    shell: "kubectl delete crd clusterpolicies.nvidia.com"
+    failed_when: false

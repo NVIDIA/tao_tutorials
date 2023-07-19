@@ -1,0 +1,57 @@
+results_dir: 'RESULTSDIR'
+encryption_key: 'ENC_KEY'
+dataset:
+  train_dataset_path: "/workspace/tao-experiments/data/split/train"
+  val_dataset_path: "/workspace/tao-experiments/data/split/val"
+  preprocess_mode: 'torch'
+  num_classes: 20
+  augmentation:
+    enable_color_augmentation: True
+    enable_center_crop: True
+train:
+  qat: False
+  checkpoint: 'PRUNEDMODEL'
+  batch_size_per_gpu: 64
+  num_epochs: 80
+  optim_config:
+    optimizer: 'sgd'
+  lr_config:
+    scheduler: 'cosine'
+    learning_rate: 0.05
+    soft_start: 0.05
+  reg_config:
+    type: 'L2'
+    scope: ['conv2d', 'dense']
+    weight_decay: 0.00005
+model:
+  backbone: 'byom'
+  input_width: 224
+  input_height: 224
+  input_channels: 3
+  input_image_depth: 8
+  byom_model: 'BYOMMODEL'
+evaluate:
+  dataset_path: '/workspace/tao-experiments/data/split/test'
+  checkpoint: 'EVALMODEL'
+  top_k: 3
+  batch_size: 256
+  n_workers: 8
+inference:
+  checkpoint: 'EVALMODEL'
+  image_dir: '/workspace/tao-experiments/data/split/test/aeroplane'
+  classmap: 'RESULTSDIR/train/classmap.json'
+export:
+  checkpoint: 'EVALMODEL'
+  onnx_file: 'EXPORTDIR/byom.onnx'
+gen_trt_engine:
+  onnx_file: 'EXPORTDIR/byom.onnx'
+  trt_engine: 'EXPORTDIR/byom.fp32.engine'
+  tensorrt:
+    data_type: 'fp32'
+    max_batch_size: 16
+    calibration:
+      cal_image_dir: '/workspace/tao-experiments/data/split/test'
+      cal_data_file: 'EXPORTDIR/calib.tensorfile'
+      cal_cache_file: 'EXPORTDIR/cal.bin'
+      cal_batches: 10
+    

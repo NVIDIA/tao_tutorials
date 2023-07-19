@@ -1,0 +1,21 @@
+model:
+  backbone:
+    type: "fan_tiny_8_p4_hybrid"
+  head:
+    type: "FANLinearClsHead"
+    custom_args:
+      head_init_scale: 1
+    num_classes: 2
+dataset:
+  data:
+    train:
+      data_prefix: /data/cats_dogs_dataset/training_set/training_set/
+      classes: /data/cats_dogs_dataset/classes.txt
+    val:
+      data_prefix: /data/cats_dogs_dataset/val_set/val_set
+      ann_file: /data/cats_dogs_dataset/val.txt
+      classes: /data/cats_dogs_dataset/classes.txt
+    test:
+      data_prefix: /data/cats_dogs_dataset/val_set/val_set
+      ann_file: /data/cats_dogs_dataset/val.txt
+      classes: /data/cats_dogs_dataset/classes.txt

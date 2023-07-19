@@ -1,0 +1,87 @@
+__class_name__: FpeNetTrainer
+checkpoint_dir: /workspace/tao-experiments/fpenet/models/exp1
+checkpoint_n_epoch: 1
+dataloader:
+  __class_name__: FpeNetDataloader
+  augmentation_info:
+    augmentation_resize_probability: 0.5
+    augmentation_resize_scale: 1.6
+    enable_occlusion_augmentation: true
+    enable_online_augmentation: true
+    enable_resize_augmentation: true
+    gamma_augmentation:
+      gamma_max: 1.6
+      gamma_min: 0.6
+      gamma_probability: 0.1
+      gamma_type: uniform
+    modulus_spatial_augmentation:
+      hflip_probability: 0.0
+      rotate_rad_max: 0.35
+      translate_max_x: 10
+      translate_max_y: 10
+      zoom_max: 1.2
+      zoom_min: 0.8
+    patch_probability: 0.5
+    size_to_image_ratio: 0.5
+    mask_augmentation_patch: true
+  batch_size: 32
+  dataset_info:
+    image_extension: png
+    no_occlusion_masking_sets: none
+    root_path:
+    tfrecord_folder_name: FpeTfRecords
+    tfrecords_directory_path: /workspace/tao-experiments/fpenet/data/tfrecords
+    tfrecords_set_id_train: afw_10
+    tfrecords_set_id_val: afw_10
+    tfrecord_file_name: data.tfrecords
+    use_extra_dataset: false
+  image_info:
+    image:
+      channel: 1
+      height: 80
+      width: 80
+  kpiset_info:
+    tfrecords_set_id_kpi: afw_10
+  num_keypoints: 10
+enable_visualization: true
+log_every_n_secs: 10
+loss:
+  __class_name__: FpeLoss
+  kpts_coeff: 0.01
+  loss_type: square_euclidean
+  mask_occ: true
+  weights_dict: null
+  elt_loss_info:
+    elt_alpha: 0.5
+    enable_elt_loss: true
+    modulus_spatial_augmentation:
+      hflip_probability: 0.0
+      rotate_rad_max: 0.35
+      translate_max_x: 10
+      translate_max_y: 10
+      zoom_max: 1.2
+      zoom_min: 0.8
+model:
+  __class_name__: FpeNetBaseModel
+  model_parameters:
+    beta: 0.1
+    pretrained_model_path: /workspace/tao-experiments/fpenet/pretrained_models/fpenet_vtrainable_v1.0/model.tlt
+    regularizer_type: l2
+    regularizer_weight: 1.0e-05
+    type: FpeNet_public
+num_epoch: 50
+num_keypoints: 10
+optimizer:
+  __class_name__: AdamOptimizer
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1.0e-08
+  learning_rate_schedule:
+    __class_name__: SoftstartAnnealingLearningRateSchedule
+    annealing: 0.5
+    base_learning_rate: 0.002
+    last_step: 1000000
+    min_learning_rate: 1.0e-04
+    soft_start: 0.3
+random_seed: 35
+visualize_num_images: 3

@@ -1,0 +1,5 @@
+enable_mig: no
+mig_profile: all-disabled
+mig_strategy: single
+nvidia_driver_version: "525.85.12"
+install_driver: true

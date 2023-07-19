@@ -1,0 +1,86 @@
+dataset:
+  augmentation:
+    rand_hflip: True
+    random_crop_min_scale: 0.1
+    random_crop_max_scale: 2
+  loader:
+    prefetch_size: 4
+    shuffle_file: False
+    shuffle_buffer: 10000
+    cycle_length: 32
+    block_length: 16
+  max_instances_per_image: 100
+  skip_crowd_during_training: True
+  num_classes: 91
+  train_tfrecords:
+    - 'DATADIR/train-*'
+  val_tfrecords:
+    - 'DATADIR/val-*'
+  val_json_file: 'DATADIR/raw-data/annotations/instances_val2017.json'
+train:
+  optimizer:
+    name: 'sgd'
+    momentum: 0.9
+  lr_schedule:
+    name: 'cosine'
+    warmup_epoch: 5
+    warmup_init: 0.0001
+    learning_rate: 0.2
+  amp: True
+  checkpoint: "PRUNEDMODEL"
+  num_examples_per_epoch: 100
+  moving_average_decay: 0.999
+  batch_size: 20
+  checkpoint_interval: 5
+  l2_weight_decay: 0.00004
+  l1_weight_decay: 0.0
+  clip_gradients_norm: 10.0
+  image_preview: True
+  qat: False
+  random_seed: 42
+  pruned_model_path: 'PRUNEDMODEL'
+  num_epochs: 20
+model:
+  name: 'efficientdet-d0'
+  input_width: 512
+  input_height: 512
+  aspect_ratios: '[(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]'
+  anchor_scale: 4
+  min_level: 3
+  max_level: 7
+  num_scales: 3
+  freeze_bn: False
+  freeze_blocks: []
+evaluate:
+  batch_size: 8
+  num_samples: 500
+  max_detections_per_image: 100
+  label_map: "/workspace/tao-experiments/efficientdet_tf2/specs/coco_labels.yaml"
+  trt_engine: "EXPORTDIR/efficientdet-d0.fp32.engine"
+  checkpoint: 'EVALMODEL'
+export:
+  batch_size: 1
+  dynamic_batch_size: True
+  min_score_thresh: 0.4
+  checkpoint: "EVALMODEL"
+  onnx_file: "EXPORTDIR/efficientdet-d0.onnx"
+gen_trt_engine:
+  onnx_file: "EXPORTDIR/efficientdet-d0.onnx"
+  trt_engine: "EXPORTDIR/efficientdet-d0.fp32.engine"
+  tensorrt:
+    data_type: "fp32"
+    max_workspace_size: 2  # in Gb
+    calibration:
+      cal_image_dir: "DATADIR/raw-data/val2017"
+      cal_cache_file: "EXPORTDIR/efficientdet-d0.cal"
+      cal_batch_size: 16
+      cal_batches: 10
+inference:
+  checkpoint: "EVALMODEL"
+  trt_engine: "EXPORTDIR/efficientdet-d0.fp32.engine"
+  image_dir: "DATADIR/test_samples"
+  dump_label: False
+  batch_size: 1
+  min_score_thresh: 0.4
+  label_map: "/workspace/tao-experiments/efficientdet_tf2/specs/coco_labels.yaml"
+results_dir: 'RESULTSDIR'

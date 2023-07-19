@@ -1,0 +1,40 @@
+output_dir: /results/rgb_2d_ptm
+encryption_key: nvidia_tao
+model_config:
+  model_type: rgb
+  backbone: resnet18
+  rgb_seq_length: 3
+  input_type: 2d
+  sample_strategy: consecutive
+  dropout_ratio: 0.0
+train_config:
+  optim:
+    lr: 0.001
+    momentum: 0.9
+    weight_decay: 0.0001
+    lr_scheduler: MultiStep
+    lr_steps: [5, 15, 20]
+    lr_decay: 0.1
+  epochs: 20
+  checkpoint_interval: 1
+dataset_config:
+  train_dataset_dir: /data/train
+  val_dataset_dir: /data/test
+  label_map:
+    walk: 0
+    sits: 1
+    squa: 2
+    fall: 3
+    bend: 4
+  output_shape:
+  - 224
+  - 224
+  batch_size: 32
+  workers: 8
+  clips_per_video: 15
+  augmentation_config:
+    train_crop_type: no_crop
+    horizontal_flip_prob: 0.5
+    rgb_input_mean: [0.5]
+    rgb_input_std: [0.5]
+    val_center_crop: False

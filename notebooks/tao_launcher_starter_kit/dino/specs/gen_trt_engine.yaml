@@ -1,0 +1,15 @@
+gen_trt_engine:
+  gpu_id: 0
+  input_width: 960
+  input_height: 544
+  tensorrt:
+    data_type: fp32
+    workspace_size: 4096
+    min_batch_size: 1
+    opt_batch_size: 8
+    max_batch_size: 8
+dataset:
+  num_classes: 91
+  batch_size: -1
+model:
+  backbone: fan_tiny

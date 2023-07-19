@@ -1,0 +1,9 @@
+data:
+  input_format: "KITTI"
+  output_format: "COCO"
+  output_dir: "/results"
+kitti:
+  image_dir: "/data/images"
+  label_dir: "/data/labels"
+coco:
+  ann_file: "/results/data.json"

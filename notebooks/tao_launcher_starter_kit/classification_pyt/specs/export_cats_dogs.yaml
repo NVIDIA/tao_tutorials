@@ -1,0 +1,20 @@
+model:
+  backbone:
+    type: "fan_tiny_8_p4_hybrid"
+  head:
+    type: "FANLinearClsHead"
+    custom_args:
+      head_init_scale: 1
+    num_classes: 2
+export:
+  opset_version: 12
+  verify: False
+  input_channel: 3
+  input_width: 224
+  input_height: 224
+gen_trt_engine:
+  tensorrt:
+    data_type: "FP32"
+    min_batch_size: 1
+    opt_batch_size: 8
+    max_batch_size: 16

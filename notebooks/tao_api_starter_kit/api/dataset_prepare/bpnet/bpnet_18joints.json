@@ -1,0 +1,30 @@
+{
+    "pose_config_type": "bpnet_18_joints",
+    "categories": [
+        {
+            "supercategory": "person",
+            "id": 1,
+            "name": "person",
+            "num_joints": 18,
+            "keypoints": [
+                "nose", "neck", "right_shoulder", "right_elbow", "right_wrist",
+                "left_shoulder", "left_elbow", "left_wrist", "right_hip", "right_knee",
+                "right_ankle", "left_hip", "left_knee","left_ankle", "right_eye",
+                "left_eye", "right_ear", "left_ear"
+            ],
+            "skeleton": [
+                [2,9],[9,10],[10,11],[2,12],[12,13],[13,14],[2,3],[3,4],
+                [4,5],[3,17],[2,6],[6,7],[7,8],[6,18],[2,1],[1,15],[1,16],[15,17],[16,18]
+            ],
+            "skeleton_edge_names": [
+                ["neck", "right_hip"], ["right_hip", "right_knee"], ["right_knee", "right_ankle"],
+                ["neck", "left_hip"], ["left_hip", "left_knee"], ["left_knee", "left_ankle"],
+                ["neck", "right_shoulder"], ["right_shoulder", "right_elbow"], ["right_elbow", "right_wrist"],
+                ["right_shoulder", "right_ear"], ["neck", "left_shoulder"], ["left_shoulder", "left_elbow"],
+                ["left_elbow", "left_wrist"], ["left_shoulder", "left_ear"], ["neck", "nose"],
+                ["nose", "right_eye"], ["nose", "left_eye"], ["right_eye","right_ear"],
+                ["left_eye","left_ear"]
+            ]
+        }
+    ] 
+}

@@ -1,0 +1,17 @@
+results_dir: "???"
+gen_trt_engine:
+  onnx_file: "???"
+  trt_engine: "???"
+  batch_size: -1
+  verbose: True
+  tensorrt: 
+    data_type: "fp32"
+    workspace_size: 10240
+    min_batch_size: 1
+    opt_batch_size: 16
+    max_batch_size: 16
+    calibration:
+      cal_cache_file: "???"
+      cal_batch_size: 16
+      cal_batches: 20
+      cal_image_dir: "???"

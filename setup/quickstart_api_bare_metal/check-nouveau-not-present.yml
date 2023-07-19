@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  tasks:
+   - name: checking Nouveau is disabled after cnc
+     command: lsmod | grep nouveau
+     register: nouveau_result
+     failed_when: false
+   - name: if nouveau is still enabled, reboot the system
+     when: nouveau_result.rc == 0
+     reboot:
+       reboot_timeout: 900
+   - name: checking Nouveau is disabled after reboot
+     command: lsmod | grep nouveau
+     register: nouveau_result
+     failed_when: false
+   - name: if nouveau is still enabled, it was in-use, need to manually reboot
+     fail:
+       msg: "nouveau driver module still loaded, please manually reboot the affected node"
+     when: nouveau_result.rc == 0

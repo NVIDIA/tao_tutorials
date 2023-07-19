@@ -1,0 +1,183 @@
+results_dir: "/workspace/tao-experiments/pointpillars"
+dataset:
+    class_names: ['Car', 'Pedestrian', 'Cyclist']
+    type: 'GeneralPCDataset'
+    data_path: '/workspace/tao-experiments/data/pointpillars'
+    data_split: {
+        'train': train,
+        'test': val
+    }
+    info_path: {
+        'train': [infos_train.pkl],
+        'test': [infos_val.pkl],
+    }
+    balanced_resampling: False
+    point_feature_encoding: {
+        encoding_type: absolute_coordinates_encoding,
+        used_feature_list: ['x', 'y', 'z', 'intensity'],
+        src_feature_list: ['x', 'y', 'z', 'intensity'],
+    }
+    point_cloud_range: [0, -39.68, -3, 69.12, 39.68, 1]
+    data_augmentor:
+        disable_aug_list: ['placeholder']
+        aug_config_list:
+            - name: gt_sampling
+              db_info_path:
+                  - dbinfos_train.pkl
+              preface: {
+                 filter_by_min_points: ['Car:5', 'Pedestrian:5', 'Cyclist:5'],
+              }
+              sample_groups: ['Car:15','Pedestrian:15', 'Cyclist:15']
+              num_point_features: 4
+              disable_with_fake_lidar: False
+              remove_extra_width: [0.0, 0.0, 0.0]
+              limit_whole_scene: False
+            - name: random_world_flip
+              along_axis_list: ['x']
+            - name: random_world_rotation
+              world_rot_angle: [-0.78539816, 0.78539816]
+            - name: random_world_scaling
+              world_scale_range: [0.95, 1.05]
+    data_processor:
+        - name: mask_points_and_boxes_outside_range
+          remove_outside_boxes: True
+        - name: shuffle_points
+          shuffle: {
+              'train': True,
+              'test': False
+          }
+        - name: transform_points_to_voxels
+          voxel_size: [0.16, 0.16, 4]
+          max_points_per_voxel: 32
+          max_number_of_voxels: {
+              'train': 16000,
+              'test': 10000
+          }
+    num_workers: 4
+
+model:
+    name: PointPillar
+    pretrained_model_path: null
+    vfe:
+        name: PillarVFE
+        with_distance: False
+        use_absolue_xyz: True
+        use_norm: True
+        num_filters: [64]
+    map_to_bev:
+        name: PointPillarScatter
+        num_bev_features: 64
+    backbone_2d:
+        name: BaseBEVBackbone
+        layer_nums: [3, 5, 5]
+        layer_strides: [2, 2, 2]
+        num_filters: [64, 128, 256]
+        upsample_strides: [1, 2, 4]
+        num_upsample_filters: [128, 128, 128]
+    dense_head:
+        name: AnchorHeadSingle
+        class_agnostic: False
+        use_direction_classifier: True
+        dir_offset: 0.78539
+        dir_limit_offset: 0.0
+        num_dir_bins: 2
+        anchor_generator_config: [
+            {
+                'class_name': 'Car',
+                'anchor_sizes': [[3.9, 1.6, 1.56]],
+                'anchor_rotations': [0, 1.57],
+                'anchor_bottom_heights': [-1.78],
+                'align_center': False,
+                'feature_map_stride': 2,
+                'matched_threshold': 0.6,
+                'unmatched_threshold': 0.45
+            },
+            {
+                'class_name': 'Pedestrian',
+                'anchor_sizes': [[0.8, 0.6, 1.73]],
+                'anchor_rotations': [0, 1.57],
+                'anchor_bottom_heights': [-0.6],
+                'align_center': False,
+                'feature_map_stride': 2,
+                'matched_threshold': 0.5,
+                'unmatched_threshold': 0.35
+            },
+            {
+                'class_name': 'Cyclist',
+                'anchor_sizes': [[1.76, 0.6, 1.73]],
+                'anchor_rotations': [0, 1.57],
+                'anchor_bottom_heights': [-0.6],
+                'align_center': False,
+                'feature_map_stride': 2,
+                'matched_threshold': 0.5,
+                'unmatched_threshold': 0.35
+            }
+        ]
+        target_assigner_config:
+            name: AxisAlignedTargetAssigner
+            pos_fraction: -1.0
+            sample_size: 512
+            norm_by_num_examples: False
+            match_height: False
+            box_coder: ResidualCoder
+        loss_config:
+            loss_weights: {
+                'cls_weight': 1.0,
+                'loc_weight': 2.0,
+                'dir_weight': 0.2,
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+            }
+    post_processing:
+        recall_thresh_list: [0.3, 0.5, 0.7]
+        score_thresh: 0.1
+        output_raw_score: False
+        eval_metric: kitti
+        nms_config:
+            multi_classes_nms: False
+            nms_type: nms_gpu
+            nms_thresh: 0.01
+            nms_pre_max_size: 4096
+            nms_post_max_size: 500
+    sync_bn: False
+
+train:
+    batch_size: 4
+    num_epochs: 80
+    optimizer: adam_onecycle
+    lr: 0.003
+    weight_decay: 0.01
+    momentum: 0.9
+    moms: [0.95, 0.85]
+    pct_start: 0.4
+    div_factor: 10
+    decay_step_list: [35, 45]
+    lr_decay: 0.1
+    lr_clip: 0.0000001
+    lr_warmup: False
+    warmup_epoch: 1
+    grad_norm_clip: 10
+    resume_training_checkpoint_path: null
+    pruned_model_path: null
+    tcp_port: 18888
+    random_seed: null
+    checkpoint_interval: 1
+    max_checkpoint_save_num: 30
+    merge_all_iters_to_one_epoch: False
+
+evaluate:
+    batch_size: 1
+    checkpoint: "/workspace/tao-experiments/pointpillars/checkpoint_epoch_80.tlt"
+
+inference:
+    max_points_num: 25000
+    batch_size: 1
+    checkpoint: "/workspace/tao-experiments/pointpillars/checkpoint_epoch_80.tlt"
+    viz_conf_thresh: 0.1
+
+export:
+  gpu_id: 0
+  checkpoint: "/workspace/tao-experiments/pointpillars/checkpoint_epoch_80.tlt"
+  onnx_file: "/workspace/tao-experiments/pointpillars/checkpoint_epoch_80.onnx"
+
+prune:
+  model: "/workspace/tao-experiments/pointpillars/checkpoint_epoch_80.tlt"

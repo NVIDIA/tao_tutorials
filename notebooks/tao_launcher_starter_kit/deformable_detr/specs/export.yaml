@@ -1,0 +1,16 @@
+export:
+  gpu_id: 0
+  input_width: 960
+  input_height: 544
+  opset_version: 12
+  on_cpu: False
+dataset:
+  num_classes: 91
+  batch_size: -1
+model:
+  backbone: resnet_50
+  num_feature_levels: 2
+  return_interm_indices: [1, 2]
+  num_queries: 300  
+  with_box_refine: True
+  aux_loss: False

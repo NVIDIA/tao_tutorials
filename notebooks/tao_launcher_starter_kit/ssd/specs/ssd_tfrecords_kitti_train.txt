@@ -1,0 +1,31 @@
+kitti_config {
+  root_directory_path: "/workspace/tao-experiments/data/kitti_split/training"
+  image_dir_name: "image"
+  label_dir_name: "label"
+  image_extension: ".png"
+  partition_mode: "random"
+  num_partitions: 2
+  val_split: 0
+  num_shards: 10
+}
+image_directory_path: "/workspace/tao-experiments/data/kitti_split/training"
+target_class_mapping {
+    key: "car"
+    value: "car"
+}
+target_class_mapping {
+    key: "pedestrian"
+    value: "pedestrian"
+}
+target_class_mapping {
+    key: "cyclist"
+    value: "cyclist"
+}
+target_class_mapping {
+    key: "van"
+    value: "car"
+}
+target_class_mapping {
+    key: "person_sitting"
+    value: "pedestrian"
+}
