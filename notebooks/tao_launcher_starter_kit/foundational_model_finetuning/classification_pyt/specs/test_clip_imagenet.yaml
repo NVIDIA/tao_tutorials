@@ -1,0 +1,19 @@
+model:
+  backbone:
+    type: "open_clip"
+    custom_args:
+      model_name: "ViT-B-32"
+    freeze: true
+  head:
+    type: LinearClsHead
+    num_classes: 1000
+    in_channels: 512
+    topk: [1, 5]
+dataset:
+  data:
+    train:
+      data_prefix: /data/imagenet/train
+    val:
+      data_prefix: /data/imagenet/val
+    test:
+      data_prefix: /data/imagenet/val
