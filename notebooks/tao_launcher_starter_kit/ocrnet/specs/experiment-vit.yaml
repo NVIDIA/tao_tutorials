@@ -1,0 +1,61 @@
+results_dir: /results
+encryption_key: nvidia_tao
+model:
+  TPS: True
+  backbone: FAN_tiny_2X
+  sequence: BiLSTM
+  hidden_size: 256
+  prediction: Attn
+  quantize: False
+  input_width: 200
+  input_height: 64
+  input_channel: 1
+dataset:
+  train_dataset_dir: []
+  val_dataset_dir: /data/test/lmdb
+  character_list_file: /data/character_list
+  max_label_length: 25
+  batch_size: 32
+  workers: 4
+  augmentation:
+    keep_aspect_ratio: False
+train:
+  seed: 1111
+  gpu_ids: [0]
+  optim:
+    name: "adadelta"
+    lr: 0.1
+  clip_grad_norm: 5.0
+  num_epochs: 10
+  checkpoint_interval: 2
+  validation_interval: 1
+evaluate:
+  gpu_id: 0
+  checkpoint: "??"
+  test_dataset_dir: "??"
+  results_dir: "${results_dir}/evaluate"
+prune:
+  gpu_id: 0
+  checkpoint: "??"
+  results_dir: "${results_dir}/prune"
+  prune_setting:
+    mode: "amount"
+    amount: 0.1
+    granularity: 8
+    raw_prune_score: L1
+inference:
+  gpu_id: 0
+  checkpoint: "??"
+  inference_dataset_dir: "??"
+  results_dir: "${results_dir}/inference"
+export:
+  gpu_id: 0
+  checkpoint: "??"
+  results_dir: "${results_dir}/export"
+dataset_convert:
+  input_img_dir: "??"
+  gt_file: "??"
+  results_dir: "${results_dir}/convert_dataset"
+gen_trt_engine:
+  onnx_file: "??"
+  results_dir: "${results_dir}/convert_dataset"

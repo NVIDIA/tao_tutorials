@@ -8,7 +8,7 @@ dataset:
   num_classes: 91
   batch_size: -1
 model:
-  backbone: fan_tiny
+  backbone: fan_small
   num_feature_levels: 4
   dec_layers: 6
   enc_layers: 6

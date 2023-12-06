@@ -2,7 +2,7 @@ encryption_key: tlt_encode
 task: classify
 train:
   resume_training_checkpoint_path: null
-  pretrained_model_path: /results/pretrained/changenet_classification_vchangenet_nvpcb_trainable_v1.0/changenet_classifier.pth
+  pretrained_model_path: /results/pretrained/visual_changenet_classification_vvisual_changenet_nvpcb_trainable_v1.0/changenet_classifier.pth
   classify:
     loss: "contrastive"
     cls_weight: [1.0, 10.0]

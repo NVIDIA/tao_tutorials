@@ -6,6 +6,7 @@ gen_trt_engine:
   trt_engine: /results/export/model_int8.engine
   tensorrt:
     data_type: int8
+    workspace_size: 4096
     min_batch_size: 1
     opt_batch_size: 1
     max_batch_size: 1

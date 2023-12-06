@@ -2,7 +2,7 @@ encryption_key: tlt_encode
 task: segment
 train:
   resume_training_checkpoint_path: null
-  pretrained_model_path: /results/pretrained/changenet_segmentation_vchangenet_levircd_trainable_v1.0/changenet_segment_levir_cd.pth
+  pretrained_model_path: /results/pretrained/visual_changenet_segmentation_levircd_vvisual_changenet_levircd_trainable_v1.0/changenet_segment_levir_cd.pth
   segment:
     loss: "ce"
     weights: [0.5, 0.5, 0.5, 0.8, 1.0]

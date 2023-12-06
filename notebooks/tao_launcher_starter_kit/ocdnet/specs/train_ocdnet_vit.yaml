@@ -1,0 +1,98 @@
+num_gpus: 1
+
+model:
+  load_pruned_graph: False
+  pruned_graph_path: '/results/prune/pruned_0.1.pth'
+  pretrained_model_path: '/data/ocdnet/ocdnet_fan_tiny_2x_icdar.pth'
+  backbone: fan_tiny_8_p4_hybrid
+  enlarge_feature_map_size: True
+  activation_checkpoint: True
+
+train:
+  results_dir: /results/train
+  num_epochs: 80
+  #resume_training_checkpoint_path: '/results/train/resume.pth'
+  checkpoint_interval: 1
+  validation_interval: 1
+  is_dry_run: False
+  precision: fp32
+  model_ema: False
+  model_ema_decay: 0.999
+  trainer:
+    clip_grad_norm: 5.0
+
+  optimizer:
+    type: Adam
+    args:
+      lr: 0.001
+
+  lr_scheduler:
+    type: WarmupPolyLR
+    args:
+      warmup_epoch: 3
+
+  post_processing:
+    type: SegDetectorRepresenter
+    args:
+      thresh: 0.3
+      box_thresh: 0.55
+      max_candidates: 1000
+      unclip_ratio: 1.5
+
+  metric:
+    type: QuadMetric
+    args:
+      is_output_polygon: false
+
+dataset:
+  train_dataset:
+      data_path: ['/data/ocdnet_vit/train']
+      args:
+        pre_processes:
+          - type: IaaAugment
+            args:
+              - {'type':Fliplr, 'args':{'p':0.5}}
+              - {'type': Affine, 'args':{'rotate':[-45,45]}}
+              - {'type':Sometimes,'args':{'p':0.2, 'then_list':{'type': GaussianBlur, 'args':{'sigma':[1.5,2.5]}}}}
+              - {'type':Resize,'args':{'size':[0.5,3]}}
+          - type: EastRandomCropData
+            args:
+              size: [640,640]
+              max_tries: 50
+              keep_ratio: true
+          - type: MakeBorderMap
+            args:
+              shrink_ratio: 0.4
+              thresh_min: 0.3
+              thresh_max: 0.7
+          - type: MakeShrinkMap
+            args:
+              shrink_ratio: 0.4
+              min_text_size: 8
+
+        img_mode: BGR
+        filter_keys: [img_path,img_name,text_polys,texts,ignore_tags,shape]
+        ignore_tags: ['*', '###']
+      loader:
+        batch_size: 1
+        pin_memory: true
+        num_workers: 12
+
+  validate_dataset:
+      data_path: ['/data/ocdnet_vit/test']
+      args:
+        pre_processes:
+          - type: Resize2D
+            args:
+              short_size:
+                - 1280
+                - 736
+              resize_text_polys: true
+        img_mode: BGR
+        filter_keys: []
+        ignore_tags: ['*', '###']
+      loader:
+        batch_size: 1
+        pin_memory: false
+        num_workers: 1
+

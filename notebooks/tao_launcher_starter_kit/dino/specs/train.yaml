@@ -21,9 +21,9 @@ dataset:
   augmentation:
     fixed_padding: False
 model:
-  backbone: fan_tiny
+  backbone: fan_small
   train_backbone: True
-  pretrained_backbone_path: /workspace/tao-experiments/dino/pretrained_dino_nvimagenet_vfan_hybrid_tiny_nvimagenet/fan_hybrid_tiny_nvimagenetv2.pth.tar
+  pretrained_backbone_path: /workspace/tao-experiments/dino/pretrained_dino_nvimagenet_vfan_small_hybrid_nvimagenet/fan_small_hybrid_nvimagenet.pth
   num_feature_levels: 4
   dec_layers: 6
   enc_layers: 6

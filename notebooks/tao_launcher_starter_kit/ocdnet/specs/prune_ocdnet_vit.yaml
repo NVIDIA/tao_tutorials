@@ -1,0 +1,34 @@
+prune:
+  checkpoint: /results/train/model_best.pth
+  ch_sparsity: 0.2
+  round_to: 32
+  p: 2
+  results_dir: /results/prune
+  verbose: True
+model:
+  backbone: fan_tiny_8_p4_hybrid
+  enlarge_feature_map_size: True
+  fuse_qkv_proj: False
+
+dataset:
+  validate_dataset:
+      data_path: ['/data/ocdnet_vit/test']
+      args:
+        pre_processes:
+          - type: Resize2D
+            args:
+              short_size:
+                - 640
+                - 640
+              resize_text_polys: true
+        img_mode: BGR
+        filter_keys: []
+        ignore_tags: ['*', '###']
+      loader:
+        batch_size: 1
+        shuffle: false
+        pin_memory: false
+        num_workers: 1
+
+
+

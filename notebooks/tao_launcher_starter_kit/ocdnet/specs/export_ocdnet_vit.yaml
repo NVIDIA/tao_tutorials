@@ -1,0 +1,16 @@
+model:
+  load_pruned_graph: False
+  pruned_graph_path: '/results/prune/pruned_0.1.pth'
+  backbone: fan_tiny_8_p4_hybrid
+  enlarge_feature_map_size: True
+  
+export:
+  results_dir: /results/export
+  checkpoint: '/results/train/model_best.pth'
+  onnx_file: '/results/export/model_best.onnx'
+  width: 1280
+  height: 736
+
+dataset:
+  validate_dataset:
+      data_path: ['/data/ocdnet_vit/test']

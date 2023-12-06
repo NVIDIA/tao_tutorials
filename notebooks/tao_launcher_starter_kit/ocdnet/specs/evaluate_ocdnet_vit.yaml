@@ -1,0 +1,43 @@
+model:
+  load_pruned_graph: False
+  pruned_graph_path: '/results/prune/pruned_0.1.pth'
+
+
+evaluate:
+  results_dir: /results/evaluate
+  checkpoint: /results/train/model_best.pth
+  gpu_id: 0
+  post_processing:
+    type: SegDetectorRepresenter
+    args:
+      box_thresh: 0.55
+      max_candidates: 1000
+      unclip_ratio: 1.5
+
+  metric:
+    type: QuadMetric
+    args:
+      is_output_polygon: false
+
+
+dataset:
+  validate_dataset:
+      data_path: ['/data/ocdnet_vit/test']
+      args:
+        pre_processes:
+          - type: Resize2D
+            args:
+              short_size:
+                - 1280
+                - 736
+              resize_text_polys: true
+        img_mode: BGR
+        filter_keys: []
+        ignore_tags: ['*', '###']
+      loader:
+        batch_size: 1
+        shuffle: false
+        pin_memory: false
+        num_workers: 4
+        
+

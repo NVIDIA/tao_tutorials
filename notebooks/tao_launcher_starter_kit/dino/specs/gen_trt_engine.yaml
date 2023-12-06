@@ -12,4 +12,4 @@ dataset:
   num_classes: 91
   batch_size: -1
 model:
-  backbone: fan_tiny
+  backbone: fan_small

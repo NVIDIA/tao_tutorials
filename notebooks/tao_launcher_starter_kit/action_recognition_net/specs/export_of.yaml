@@ -1,22 +1,28 @@
-model_config:
+results_dir: /results/of_3d_ptm
+encryption_key: nvidia_tao
+model:
   model_type: of
-  backbone: resnet18
-  of_seq_length: 3
+  backbone: resnet_18
+  rgb_seq_length: 3
+  input_height: 224
+  input_width: 224
   input_type: 3d
-  sample_strategy: consecutive 
+  sample_strategy: consecutive
   dropout_ratio: 0.0
-dataset_config:
+dataset:
+  train_dataset_dir: /data/train
+  val_dataset_dir: /data/test
   label_map:
     fall_floor: 0
     ride_bike: 1
-  output_shape:
-  - 224
-  - 224
   batch_size: 32
   workers: 8
+  clips_per_video: 5
   augmentation_config:
     train_crop_type: no_crop
-    horizontal_flip_prob: 0.0
-    of_input_mean: [0.5]
-    of_input_std: [0.5]
+    horizontal_flip_prob: 0.5
+    rgb_input_mean: [0.5]
+    rgb_input_std: [0.5]
     val_center_crop: False
+export:
+  checkpoint: "??"

@@ -35,7 +35,7 @@ dataset:
       classes: /data/cats_dogs_dataset/classes.txt
 model:
   backbone:
-    type: "fan_tiny_8_p4_hybrid"
+    type: "fan_small_12_p4_hybrid"
     custom_args:
       drop_path: 0.1
   head:

@@ -1,7 +1,13 @@
 prune:
   checkpoint: /results/train/model_best.pth
-  pruning_thresh: 0.1
+  ch_sparsity: 0.1
+  round_to: 32
+  p: 2
   results_dir: /results/prune
+  verbose: True
+
+model:
+  backbone: deformable_resnet18
 
 dataset:
   validate_dataset:

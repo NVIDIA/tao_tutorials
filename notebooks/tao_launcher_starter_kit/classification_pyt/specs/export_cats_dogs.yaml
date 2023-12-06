@@ -1,6 +1,6 @@
 model:
   backbone:
-    type: "fan_tiny_8_p4_hybrid"
+    type: "fan_small_12_p4_hybrid"
   head:
     type: "FANLinearClsHead"
     custom_args:
