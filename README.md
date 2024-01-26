@@ -70,7 +70,7 @@ Download the TAO package which contains startup scripts, Jupyter notebooks and c
 TAO is supported on Google Colab; if you want to try on Colab, you can skip this step and directly scroll down to [#4 in the How to run TAO](#colab) section.
 
 ```bash
-    ngc registry resource download-version "nvidia/tao/tao-getting-started:5.0.0"
+    ngc registry resource download-version "nvidia/tao/tao-getting-started:5.2.0"
     cd ./tao-getting-started_v5.2.0
 ```
 
