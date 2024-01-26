@@ -1,6 +1,5 @@
 # TAO Toolkit - Tutorials
 
-<!-- vscode-markdown-toc -->
 * [Introduction](#Introduction)
 * [Requirements](#Requirements)
 	* [Hardware requirements](#Hardwarerequirements)
@@ -12,12 +11,6 @@
 * [Jupyter notebooks](#Jupyternotebooks)
 * [Blogs](#Blogs)
 * [License](#License)
-
-<!-- vscode-markdown-toc-config
-	numbering=false
-	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
 
 ## <a name='Introduction'></a>Introduction
 
@@ -78,7 +71,7 @@ TAO is supported on Google Colab; if you want to try on Colab, you can skip this
 
 ```bash
     ngc registry resource download-version "nvidia/tao/tao-getting-started:5.0.0"
-    cd ./tao-getting-started_v5.0.0
+    cd ./tao-getting-started_v5.2.0
 ```
 
 ### <a name='FileHierarchy'></a>File Hierarchy
