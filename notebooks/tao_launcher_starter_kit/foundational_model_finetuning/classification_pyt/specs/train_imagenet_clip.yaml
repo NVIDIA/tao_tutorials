@@ -6,9 +6,9 @@ dataset:
       data_prefix: /data/imagenet/train
       pipeline: # Augmentations alone
         - type: RandomResizedCrop
-          size: 224
+          scale: 224
         - type: RandomFlip
-          flip_prob: 0.5
+          prob: 0.5
           direction: "horizontal"
         - type: ColorJitter
           brightness: 0.4
@@ -27,7 +27,7 @@ model:
     freeze: true
     pretrained: laion2b_s34b_b79k
   head:
-    type: LinearClsHead
+    type: TAOLinearClsHead
     num_classes: 1000
     in_channels: 512
     loss:
@@ -43,11 +43,10 @@ train:
       type: AdamW
       lr: 1e-3
     lr_config:
-      policy: CosineAnnealing
-      min_lr: 0
-      warmup: 'linear'
-      warmup_iters: 10
-      warmup_by_epoch: False
+      type: CosineAnnealingLR
+      T_max: 200
+      by_epoch: True
+      begin: 0
     optimizer_config:
       grad_clip:
         max_norm: 5.0

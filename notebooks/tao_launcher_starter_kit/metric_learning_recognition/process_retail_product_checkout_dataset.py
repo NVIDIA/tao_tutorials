@@ -11,29 +11,38 @@ from tqdm import tqdm
 import numpy as np
 import shutil
 
-def create_reference_set(dataset_dir, ref_dir, ref_num = 100):
-    os.makedirs(ref_dir, exist_ok=True)
+def create_task_sets(dataset_dir, output_dir):
+    # each class has 120 images in train set
+    os.makedirs(output_dir, exist_ok=True)
     classes = os.listdir(dataset_dir)
-    print(f"Creating reference set from {dataset_dir}...")
+    print(f"Creating subsets set from {dataset_dir}...")
     for class_name in tqdm(classes):
         samples = os.listdir(os.path.join(dataset_dir, class_name))
-        if not os.path.exists(os.path.join(ref_dir, class_name)):
-            os.makedirs(os.path.join(ref_dir, class_name))
-        if len(samples) >= ref_num:
-            ref_samples = np.random.choice(samples, ref_num, replace=False)
-        else: 
-            print(f"Warning: {class_name} has only {len(samples)} samples. Copying all samples to reference set.")
-            ref_samples = samples
-        
-        for sample in ref_samples:
-            try:
-                shutil.copy(os.path.join(dataset_dir, class_name, sample), os.path.join(ref_dir, class_name, sample))
-            except:
-                pass
+        sample_len = len(samples)
+        indices = np.arange(sample_len)
+        np.random.shuffle(indices)
+        for subset_name in ["val", "test", "reference"]:
+            subset_class_dir = os.path.join(output_dir, subset_name, class_name)
+            if not os.path.exists(subset_class_dir):
+                os.makedirs(subset_class_dir)
+            
+            sample_indices = np.array([])
+            if subset_name == "reference":
+                sample_indices = indices[:sample_len//3]
+            elif subset_name == "val":
+                sample_indices = indices[sample_len//3:sample_len//2]
+            elif subset_name == "test":
+                sample_indices = indices[sample_len//2:2*sample_len//3]
+            
+
+            final_samples = np.array(samples)[sample_indices]
+            
+            for sample in final_samples:
+                os.rename(os.path.join(dataset_dir, class_name, sample), os.path.join(subset_class_dir, sample))
     
     print("Done!")
 
-    
+
 
 def crop_images(file_path, bbox, class_id, output_dir):
         
@@ -74,7 +83,7 @@ def crop_images(file_path, bbox, class_id, output_dir):
         
 
 # load dataset
-data_root_dir = os.path.join(os.environ['HOST_DATA_DIR'],"metric_learning_recognition")
+data_root_dir = os.environ['HOST_DATA_DIR']
 path_to_zip_file = os.path.join(data_root_dir,"retail-product-checkout-dataset.zip")
 directory_to_extract_to = os.path.join(data_root_dir, "retail-product-checkout-dataset")
 processed_classification_dir = os.path.join(data_root_dir,"retail-product-checkout-dataset_classification_demo")
@@ -89,7 +98,7 @@ with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
 
 directory_to_extract_to = os.path.join(directory_to_extract_to, "retail_product_checkout")
 
-for dataset in ["train", "val", "test"]:
+for dataset in ["train"]:
     dataset_dir = os.path.join(directory_to_extract_to, dataset+"2019")
     annotation_file = os.path.join(directory_to_extract_to, "instances_"+dataset+"2019.json")
     output_dir = os.path.join(processed_classification_dir, dataset)
@@ -100,6 +109,7 @@ for dataset in ["train", "val", "test"]:
     coco_label = COCO(annotation_file)
 
     # crop images to classification data
+    print(f"Cropping {dataset} dataset...")
     for img_object in tqdm(coco_label.dataset["images"]):
         image_path = os.path.join(dataset_dir, img_object["file_name"])
         
@@ -117,15 +127,14 @@ for dataset in ["train", "val", "test"]:
 
 # extract a reference set from training set
 
-## fixed random seed for reproducibility
+# fixed random seed for reproducibility
 np.random.seed(0) 
-create_reference_set(
-    os.path.join(processed_classification_dir, "train"), \
-    os.path.join(processed_classification_dir, "reference"), \
-    ref_num=100)
+create_task_sets(
+    os.path.join(processed_classification_dir, "train"), 
+    os.path.join(processed_classification_dir))
 
 # split out unknown classes
-# select 20% classes as unknown classes
+print("Select 20% of classes as unknown classes...")
 class_list = os.listdir(os.path.join(processed_classification_dir, "train"))
 total_class_num = len(class_list)
 unknown_classes = np.random.choice(class_list, int(total_class_num*0.2), replace=False)

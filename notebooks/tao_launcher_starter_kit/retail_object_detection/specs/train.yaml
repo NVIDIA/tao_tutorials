@@ -1,0 +1,33 @@
+train:
+  freeze: ['backbone', 'transformer.encoder']
+  pretrained_model_path: /model/retail_object_detection_vtrainable_binary_v2.1.1/retail_object_detection_binary_v2.1.1.pth
+  num_gpus: 1
+  num_nodes: 1
+  validation_interval: 1
+  optim:
+    lr_backbone: 1e-6
+    lr: 1e-5
+    lr_steps: [11]
+    momentum: 0.9
+  num_epochs: 12
+dataset:
+  train_data_sources:
+    - image_dir: /data/retail_object_detection/train2019
+      json_file: /data/retail_object_detection/binary_train2019.json
+  val_data_sources:
+    - image_dir: /data/retail_object_detection/val2019
+      json_file: /data/retail_object_detection/binary_val2019.json
+  num_classes: 2
+  batch_size: 4
+  workers: 8
+  augmentation:
+    fixed_padding: False
+model:
+  backbone: fan_small
+  num_feature_levels: 4
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 900
+  num_select: 100
+  dropout_ratio: 0.0
+  dim_feedforward: 2048

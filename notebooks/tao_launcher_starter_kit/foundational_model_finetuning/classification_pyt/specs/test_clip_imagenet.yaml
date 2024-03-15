@@ -5,7 +5,7 @@ model:
       model_name: "ViT-B-32"
     freeze: true
   head:
-    type: LinearClsHead
+    type: TAOLinearClsHead
     num_classes: 1000
     in_channels: 512
     topk: [1, 5]

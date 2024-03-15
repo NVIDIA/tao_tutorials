@@ -10,7 +10,8 @@ model:
   input_height: 256
   neck: bnneck
   stride_size: [16, 16]
-  feat_dim: 768
+  reduce_feat_dim: True
+  feat_dim: 256
   no_margin: True
   neck_feat: after
   metric_loss_type: triplet

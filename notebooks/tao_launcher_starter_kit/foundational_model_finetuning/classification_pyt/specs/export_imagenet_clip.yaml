@@ -4,6 +4,7 @@ export:
   checkpoint: "???"
   onnx_file: "???"
   verify: true
+  opset_version: 16
 
 dataset:
   data:
@@ -33,7 +34,7 @@ model:
       model_name: "ViT-B-32"
     freeze: false
   head:
-    type: LinearClsHead
+    type: TAOLinearClsHead
     num_classes: 1000
     in_channels: 512
     loss:

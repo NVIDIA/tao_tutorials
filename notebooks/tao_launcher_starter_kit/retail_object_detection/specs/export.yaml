@@ -1,0 +1,18 @@
+export:
+  gpu_id: 0
+  input_width: 960
+  input_height: 544
+  opset_version: 17
+  on_cpu: False
+dataset:
+  num_classes: 2
+  batch_size: -1
+model:
+  backbone: fan_small
+  num_feature_levels: 4
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 900
+  num_select: 100
+  dropout_ratio: 0.0
+  dim_feedforward: 2048

@@ -1,7 +1,6 @@
 results_dir: "???"
 model:
   backbone: resnet_101
-  pretrain_choice: ""
   input_width: 224
   input_height: 224 
   feat_dim: 2048

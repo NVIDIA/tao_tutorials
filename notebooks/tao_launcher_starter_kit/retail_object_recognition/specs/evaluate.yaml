@@ -1,0 +1,14 @@
+results_dir: "???"
+model:
+  backbone: nvdinov2_vit_large_legacy
+  input_width: 224
+  input_height: 224 
+  feat_dim: 1024
+dataset:
+  workers: 8
+  val_dataset:
+    reference: "???"
+    query: "???"
+evaluate:
+  batch_size: 16
+  results_dir: "???"

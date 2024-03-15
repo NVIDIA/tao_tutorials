@@ -1,8 +1,9 @@
 results_dir: "???"
 model:
   backbone: resnet_101
-  pretrain_choice: "imagenet"
   pretrained_model_path: null
+  pretrained_trunk_path: null
+  pretrained_embedder_path: null
   input_width: 224
   input_height: 224 
   feat_dim: 2048
@@ -34,6 +35,8 @@ train:
   smooth_loss: False
   batch_size: 16
   val_batch_size: 16
+  train_trunk: True
+  train_embedder: True
 dataset:
   train_dataset: "???"
   val_dataset:

@@ -25,6 +25,7 @@ model:
   backbone:
     type: "fan_small_12_p4_hybrid"
     pretrained_backbone_path: null
+    freeze_backbone: False
   classify:
     train_margin_euclid: 2.0
     eval_margin: 0.005
