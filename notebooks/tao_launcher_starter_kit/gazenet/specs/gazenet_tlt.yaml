@@ -1,0 +1,170 @@
+__class_name__: GazeNetTrainer
+checkpoint_dir: /home/hr/results/test
+checkpoint_n_epoch: 1
+dataloader:
+  __class_name__: GazeNetDataloaderAugV2
+  augmentation_info:
+    blur_augmentation:
+      blur_probability: 0.0
+      kernel_sizes:
+      - 1
+      - 3
+      - 5
+      - 7
+      - 9
+    enable_online_augmentation: true
+    gamma_augmentation:
+      gamma_max: 1.1
+      gamma_min: 0.9
+      gamma_probability: 0.1
+      gamma_type: uniform
+    modulus_color_augmentation:
+      contrast_center: 127.5
+      contrast_scale_max: 0.0
+      hue_rotation_max: 0.0
+      saturation_shift_max: 0.0
+    modulus_spatial_augmentation:
+      hflip_probability: 0.5
+      zoom_max: 1.0
+      zoom_min: 1.0
+    random_shift_bbx_augmentation:
+      shift_percent_max: 0.16
+      shift_probability: 0.9
+  batch_size: 128
+  dataset_info:
+    ground_truth_folder_name:
+    - Ground_Truth_DataFactory_pipeline
+    image_extension: png
+    root_path: null
+    test_file_name: test.tfrecords
+    tfrecord_folder_name:
+    - TfRecords_joint_combined
+    tfrecords_directory_path:
+    - /workspace/tao-experiments/gazenet/data/MPIIFaceGaze/sample-dataset
+    tfrecords_set_id:
+    - p01-day03
+    train_file_name: train.tfrecords
+    validate_file_name: validate.tfrecords
+  eye_scale_factor: 1.8
+  face_scale_factor: 1.3
+  filter_phases:
+    - training
+    - testing
+    - validation
+    - kpi_testing
+  filter_info:
+    - desired_val_max: 400.0
+      desired_val_min: -400.0
+      feature_names:
+      - label/gaze_cam_x
+    - desired_val_max: 400.0
+      desired_val_min: -400.0
+      feature_names:
+      - label/gaze_cam_y
+    - desired_val_max: 300.0
+      desired_val_min: -300.0
+      feature_names:
+      - label/gaze_cam_z    
+  image_info:
+    facegrid:
+      channel: 1
+      height: 25
+      width: 25
+    image_face:
+      channel: 1
+      height: 224
+      width: 224
+    image_frame:
+      channel: 1
+      height: 720
+      width: 1280
+    image_left:
+      channel: 1
+      height: 224
+      width: 224
+    image_right:
+      channel: 1
+      height: 224
+      width: 224
+  input_normalization_type: zero-one
+  kpiset_info:
+    ground_truth_folder_name_kpi:
+    - Ground_Truth_DataFactory_pipeline
+    kpi_file_name: test.tfrecords
+    kpi_root_path: null
+    kpi_tfrecords_directory_path:
+    - /workspace/tao-experiments/gazenet/data/MPIIFaceGaze/sample-dataset
+    tfrecord_folder_name_kpi:
+    - TfRecords_joint_combined
+    tfrecords_set_id_kpi:
+    - p01-day03
+  learn_delta: false
+  use_head_norm: false
+  num_outputs: 5
+  theta_phi_degrees: false
+  use_narrow_eye: true
+  add_test_to: null
+enable_visualization: false
+evaluation_metric: rmse
+network_inputs: face_and_eyes_and_fgrid
+use_landmarks_input: false
+hooks: null
+infrequent_summary_every_n_steps: 0
+log_every_n_secs: 10
+loss:
+  __class_name__: GazeLoss
+  loss_type: logcosh
+model:
+  __class_name__: GazeNetBaseModel
+  model_parameters:
+    dropout_rate: 0.25
+    frozen_blocks: 0
+    num_outputs: 5
+    pretrained_model_path: null
+    regularizer_type: l2
+    regularizer_weight: 0.002
+    type: GazeNet_public
+    use_batch_norm: true
+  visualization_parameters: null
+model_selection_metric: logcosh
+num_epoch: 2
+optimizer:
+  __class_name__: AdamOptimizer
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1.0e-08
+  learning_rate_schedule:
+    __class_name__: SoftstartAnnealingLearningRateSchedule
+    annealing: 0.8
+    base_learning_rate: 0.003
+    last_step: 263000
+    min_learning_rate: 5.0e-07
+    soft_start: 0.2
+post_evaluate:
+  results_folder: KPI_TMP
+  buckets_to_visualize: all clean hard easy car car_center car_right center-camera
+    left-center-camera bottom-center-camera top-center-camera right-center-camera
+    right-camera glasses no-glasses occluded
+  enable_post_evaluate: false
+  filter_users: user8_x user9_x user10_x
+  gaze_origin: mid_eyes
+  ground_truth_file_extension: null
+  kpi_bucket_file: null
+  model_type: joint
+  path_info:
+    ground_truth_file_folder_name:
+    - GT_combined
+    ground_truth_folder_name:
+    - Ground_Truth_DataFactory_pipeline
+    root_path: null
+    set_directory_path:
+    - /workspace/tao-experiments/gazenet/data/MPIIFaceGaze/sample-dataset
+  theta_phi_degrees: false
+  time_instance_info_path: null
+  visualize_set_id:
+  - p01-day03
+  write_csv: false
+random_seed: 42
+visualize_bins_2d: 5
+visualize_bins_3d: 100
+visualize_num_images: 3

@@ -1,0 +1,19 @@
+export:
+  gpu_id: 0
+  input_width: 960
+  input_height: 544
+  opset_version: 17
+  batch_size: 1  # only support batch_size=1
+  on_cpu: False
+model:
+  backbone: swin_tiny_224_1k
+  num_feature_levels: 4
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 900
+  dropout_ratio: 0.0
+  dim_feedforward: 2048
+  loss_types: ['labels', 'boxes', 'masks']
+  aux_loss: False
+  log_scale: auto
+  class_embed_bias: True

@@ -1,0 +1,17 @@
+results_dir: "/results/analytics"
+data:
+  input_format: "KITTI"
+  image_dir: "/data/images"
+  ann_path: "/data/labels"
+workers: 2
+image:
+  generate_image_with_bounding_box: False
+  sample_size: 100
+graph:
+  generate_summary_and_graph: True
+  height: 15
+  width: 15
+  show_all: False
+wandb:
+  visualize: False
+  project: "tao data analytics"

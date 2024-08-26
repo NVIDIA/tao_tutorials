@@ -1,0 +1,129 @@
+__class_name__: EmotionNetTrainer
+checkpoint_dir: null
+random_seed: 42
+log_every_n_secs: 10
+checkpoint_n_epoch: 1
+num_epoch: 50
+infrequent_summary_every_n_steps: 0
+use_landmarks_input: True
+class_list: ['neutral',
+             'happy',
+             'surprise',
+             'contempt', 
+             'disgust',
+             'angry']
+dataloader:
+  __class_name__: EmotionNetDataloader
+  batch_size: 64
+  face_scale_factor: 1.3
+  num_keypoints: 68
+  prefetch_num: 3
+  image_info:
+    image_frame:
+      channel: 1
+      height: 480
+      width: 640
+    image_face:
+      channel: 1
+      height: 224
+      width: 224
+  dataset_info:
+    root_path: null
+    image_extension: png
+    tfrecords_directory_path:
+    - /home/hr/tlt-experiments/emotionnet/postData
+    tfrecords_set_id:
+    - ckplus
+    ground_truth_folder_name:
+    - Ground_Truth_DataFactory
+    tfrecord_folder_name:
+    - TfRecords_combined
+    train_file_name: train.tfrecords
+    validate_file_name: validate.tfrecords
+    test_file_name: test.tfrecords
+  kpiset_info:
+    kpi_root_path: null
+    kpi_tfrecords_directory_path:
+    - /home/hr/tlt-experiments/emotionnet/postData
+    tfrecords_set_id_kpi:
+    - ckplus
+    ground_truth_folder_name_kpi:
+    - Ground_Truth_DataFactory
+    tfrecord_folder_name_kpi:
+    - TfRecords_combined
+    kpi_file_name: test.tfrecords
+model:
+  __class_name__: EmotionNetModel
+  model_parameters:
+    use_batch_norm: True
+    data_format: channels_first
+    regularization_type: l2
+    regularization_factor: 0.002
+    bias_regularizer: null
+    use_landmarks_input: True
+    activation_type: 'relu'
+    dropout_rate: 0.3
+    num_class: 6
+    pretrained_model_path: null
+    frozen_blocks: 2
+loss:
+  __class_name__: EmotionNetLoss
+  loss_function_name: CE
+  class_weights_dict: None
+optimizer:
+  __class_name__: AdamOptimizer
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1.0e-08
+  learning_rate_schedule:
+    __class_name__: SoftstartAnnealingLearningRateSchedule
+    soft_start: 0.2
+    annealing: 0.8
+    base_learning_rate: 0.0002
+    min_learning_rate: 2.0e-07
+    last_step: 953801
+evaluator:
+  __class_name__: EmotionNetEvaluator
+  dataloader:
+    __class_name__: EmotionNetDataloader
+    batch_size: 1
+    face_scale_factor: 1.3
+    num_keypoints: 68
+    prefetch_num: 3
+    image_info:
+      image_frame:
+        channel: 1
+        height: 480
+        width: 640
+      image_face:
+        channel: 1
+        height: 224
+        width: 224
+    dataset_info:
+      root_path: null
+      image_extension: png
+      tfrecords_directory_path:
+      - /home/hr/tlt-experiments/emotionnet/postData
+      tfrecords_set_id:
+      - ckplus
+      ground_truth_folder_name:
+      - Ground_Truth_DataFactory
+      tfrecord_folder_name:
+      - TfRecords_combined
+      train_file_name: train.tfrecords
+      validate_file_name: validate.tfrecords
+      test_file_name: test.tfrecords
+    kpiset_info:
+      kpi_root_path: null
+      kpi_tfrecords_directory_path:
+      - /home/hr/tlt-experiments/emotionnet/postData
+      tfrecords_set_id_kpi:
+      - ckplus
+      ground_truth_folder_name_kpi:
+      - Ground_Truth_DataFactory
+      tfrecord_folder_name_kpi:
+      - TfRecords_combined
+      kpi_file_name: test.tfrecords
+  loss:
+    __class_name__: EmotionNetLoss
+    loss_function_name: CE

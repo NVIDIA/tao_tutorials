@@ -32,12 +32,17 @@ optional arguments:
 INSTALL="0"
 UPGRADE="0"
 PRINT_HELP="0"
+
+# Check if no arguments are given
+if [ $# -eq 0 ]; then
+    echo "No arguments provided, displaying help"
+    PRINT_HELP="1"
+fi
 # Parse command line.
 while [[ $# -gt 0 ]]
     do
-    key="$1"
 
-    case $key in
+    case "$1" in
         -i|--install)
         INSTALL="1"
         shift # past argument
@@ -48,12 +53,6 @@ while [[ $# -gt 0 ]]
         shift # past argument
         ;;
         --help)
-        PRINT_HELP="1"
-        shift # past argument
-        ;;
-        --default)
-        INSTALL="0"
-        UPGRADE="0"
         PRINT_HELP="1"
         shift # past argument
         ;;

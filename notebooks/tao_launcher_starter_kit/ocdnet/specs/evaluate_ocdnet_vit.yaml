@@ -6,7 +6,6 @@ model:
 evaluate:
   results_dir: /results/evaluate
   checkpoint: /results/train/model_best.pth
-  gpu_id: 0
   post_processing:
     type: SegDetectorRepresenter
     args:

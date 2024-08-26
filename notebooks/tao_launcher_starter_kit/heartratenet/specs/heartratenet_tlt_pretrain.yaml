@@ -1,0 +1,51 @@
+__class_name__: HeartRateNetTrainer
+checkpoint_dir: /workspace/tao-experiments/heartratenet/model/
+results_dir: /workspace/tao-experiments/heartratenet/
+random_seed: 32
+log_every_n_secs: 20
+checkpoint_n_epoch: 1
+num_epoch: 20
+summary_every_n_steps: 1
+infrequent_summary_every_n_steps: 0
+last_step: 1
+evaluation_window: 10
+low_freq_cutoff: 0.67
+high_freq_cutoff: 4.0
+fps: 20.0
+model_type: HRNet_release
+dataloader:
+  __class_name__: HeartRateNetDataloader
+  image_info:
+    num_channels: 3
+    image_height: 72
+    image_width: 72
+    data_format: channels_first
+  dataset_info:
+    tfrecords_directory_path: /workspace/tao-experiments/heartratenet/data
+    tfrecord_folder_name: ''
+    tfrecord_train_file_name: train.tfrecord
+    tfrecord_test_file_name: test.tfrecord
+    tfrecord_validation_file_name: validation.tfrecord
+  model_info:
+    model_type: HRNet_release
+model:
+  __class_name__: HeartRateNet
+  model_parameters:
+    input_size: 72
+    data_format: channels_first
+    conv_dropout_rate: 0.0
+    fully_connected_dropout_rate: 0.0
+    use_batch_norm: False
+    model_type: HRNet_release
+    frozen_blocks: 0 # Freeze up the `nth` layer. Must be in range of [0, 5).
+    pretrained_model: /workspace/tao-experiments/heartratenet/pretrain_models/heartratenet_vtrainable_v2.0/model.tlt
+loss:
+  __class_name__: HeartRateNetLoss
+  loss_function_name: MSE
+optimizer:
+  __class_name__: AdadeltaOptimizer
+  rho: 0.95
+  epsilon: 1.0e-07
+  learning_rate_schedule:
+    __class_name__: ConstantLearningRateSchedule
+    learning_rate: 1.0

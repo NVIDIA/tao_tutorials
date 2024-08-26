@@ -1,5 +1,3 @@
-num_gpus: 1
-
 model:
   load_pruned_graph: False
   pruned_graph_path: '/results/prune/pruned_0.1.pth'
@@ -8,6 +6,7 @@ model:
 
 train:
   results_dir: /results/train
+  num_gpus: 1
   num_epochs: 30
   #resume_training_checkpoint_path: '/results/train/resume.pth'
   checkpoint_interval: 1
@@ -88,5 +87,5 @@ dataset:
       loader:
         batch_size: 1
         pin_memory: false
-        num_workers: 4
+        num_workers: 1
 

@@ -8,7 +8,7 @@ train:
     cls_weight: [1.0, 10.0]
   num_epochs: 30
   num_nodes: 1
-  val_interval: 1
+  validation_interval: 1
   checkpoint_interval: 1
   optim:
     lr: 0.00005
@@ -61,12 +61,28 @@ dataset:
     grid_map:
       x: 2
       y: 2
-    output_shape:
-      - 128
-      - 128
+    image_width: 128
+    image_height: 128
     augmentation_config:
       rgb_input_mean: [0.485, 0.456, 0.406]
       rgb_input_std: [0.229, 0.224, 0.225]
+      random_flip:
+        vflip_probability: 0.5
+        hflip_probability: 0.5
+        enable: True
+      random_rotate:
+        rotate_probability: 0.5
+        angle_list: [90, 180, 270]
+        enable: True
+      random_color:
+        brightness: 0.3
+        contrast: 0.3
+        saturation: 0.3
+        hue: 0.3
+        enable: True
+      with_random_crop: True
+      with_random_blur: True
+      augment: False
     num_classes: 2
 evaluate: 
   checkpoint: "${results_dir}/train/changenet_classify.pth"

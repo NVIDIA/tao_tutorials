@@ -1,0 +1,7 @@
+apply_correction: True
+results_dir: "/results/analytics"
+data:
+  input_format: "KITTI"
+  image_dir: "/data/images"
+  ann_path: "/data/labels"
+workers: 2

@@ -1,5 +1,0 @@
-ngc_api_key:
-ngc_email:
-api_chart: https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-toolkit-api-5.0.0.tgz
-api_values: ./tao-toolkit-api-helm-values.yml
-cluster_name:

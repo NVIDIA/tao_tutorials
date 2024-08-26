@@ -21,8 +21,8 @@ spec:
   ssh_public_key: '<replace-with-ssh-public-key>'
   ngc_api_key: '<replace-with-ngc-api-key>'
   ngc_email: '<replace-with-ngc-email>'
-  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-toolkit-api-4.0.0.tgz'
+  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-api-5.5.0'
   chart_values: |
     ---
   gpu_operator_version: 'v23.3.2'
-  nvidia_driver_version: '525.85.12'
+  nvidia_driver_version: '535.161.08'

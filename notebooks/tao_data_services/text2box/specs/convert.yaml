@@ -1,0 +1,9 @@
+results_dir: /results
+data:
+  input_format: ODVG
+  output_format: COCO
+coco:
+  add_background: True
+odvg:
+  ann_file: /results/final_annotation.jsonl
+  labelmap_file: /results/labelmap.json

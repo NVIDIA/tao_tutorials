@@ -1,0 +1,74 @@
+results_dir: /results_inst/
+dataset:
+  contiguous_id: True
+  label_map: /specs/labelmap_inst.json
+  train:
+    type: 'coco'
+    name: "coco_2017_train"
+    instance_json: "/data/raw-data/annotations/instances_train2017.json"
+    img_dir: "/data/raw-data/train2017"
+    batch_size: 16
+    num_workers: 2
+  val:
+    type: 'coco'
+    name: "coco_2017_val"
+    instance_json: "/data/raw-data/annotations/instances_val2017.json"
+    img_dir: "/data/raw-data/val2017"
+    batch_size: 1
+    num_workers: 2
+  test:
+    img_dir: /data/raw-data/val2017
+    batch_size: 1
+  augmentation:
+    train_min_size: [640]
+    train_max_size: 2048
+    train_crop_size: [640, 640]
+    test_min_size: 640
+    test_max_size: 2048
+train:
+  precision: 'fp16'
+  num_gpus: 1
+  checkpoint_interval: 1
+  validation_interval: 1
+  num_epochs: 50
+  optim:
+    lr_scheduler: "MultiStep"
+    milestones: [44, 48]
+    type: "AdamW"
+    lr: 0.0001
+    weight_decay: 0.05
+model:
+  object_mask_threshold: 0.1
+  overlap_threshold: 0.8
+  mode: "instance"
+  backbone:
+    pretrained_weights: "/workspace/tao-experiments/mask2former/swin_tiny_patch4_window7_224_22k.pth"
+    type: "swin"
+    swin:
+      type: "tiny"
+      window_size: 7
+      ape: False
+      pretrain_img_size: 224
+  mask_former:
+    num_object_queries: 100
+  sem_seg_head:
+    norm: "GN"
+    num_classes: 80
+export:
+  input_channel: 3
+  input_width: 640
+  input_height: 640
+  opset_version: 17
+  batch_size: -1  # dynamic batch size
+  on_cpu: False
+gen_trt_engine:
+  gpu_id: 0
+  input_channel: 3
+  input_width: 640
+  input_height: 640
+  tensorrt:
+    data_type: fp16
+    workspace_size: 4096
+    min_batch_size: 1
+    opt_batch_size: 1
+    max_batch_size: 1

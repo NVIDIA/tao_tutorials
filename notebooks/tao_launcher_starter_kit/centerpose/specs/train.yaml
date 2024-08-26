@@ -16,7 +16,7 @@ train:
   checkpoint_interval: ${train.validation_interval}
   num_epochs: 40
   clip_grad_val: 100.0
-  randomseed: 317
+  seed: 317
   resume_training_checkpoint_path: null
   precision: "fp32"
 

@@ -86,17 +86,28 @@ def crop_images(file_path, bbox, class_id, output_dir):
 data_root_dir = os.environ['HOST_DATA_DIR']
 path_to_zip_file = os.path.join(data_root_dir,"retail-product-checkout-dataset.zip")
 directory_to_extract_to = os.path.join(data_root_dir, "retail-product-checkout-dataset")
+folder_to_extract = "retail_product_checkout"  # only extracts one folder from the zip file
 processed_classification_dir = os.path.join(data_root_dir,"retail-product-checkout-dataset_classification_demo")
 
 ## unzip dataset
 if not os.path.exists(processed_classification_dir):
     os.makedirs(processed_classification_dir)
 
-print("Unzipping dataset...")
-with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
-    zip_ref.extractall(directory_to_extract_to)
+print("Unzipping the dataset...")
+# Ensure the folder path ends with a slash
+if not folder_to_extract.endswith('/'):
+    folder_to_extract += '/'
 
-directory_to_extract_to = os.path.join(directory_to_extract_to, "retail_product_checkout")
+# Open the zip file
+with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+    # Iterate over the files in the zip file
+    for file_info in zip_ref.infolist():
+        # Check if the file is in the specified folder
+        if file_info.filename.startswith(folder_to_extract):
+            # Extract the file
+            zip_ref.extract(file_info, directory_to_extract_to)
+
+directory_to_extract_to = os.path.join(directory_to_extract_to, folder_to_extract)
 
 for dataset in ["train"]:
     dataset_dir = os.path.join(directory_to_extract_to, dataset+"2019")

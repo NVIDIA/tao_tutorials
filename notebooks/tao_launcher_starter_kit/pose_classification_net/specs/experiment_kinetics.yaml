@@ -39,5 +39,5 @@ train:
     - 30
     - 40
     lr_decay: 0.1
-  num_epochs: 50
+  num_epochs: 50 
   checkpoint_interval: 5

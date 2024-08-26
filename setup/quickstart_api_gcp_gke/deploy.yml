@@ -17,8 +17,8 @@ spec:
   gpu_count: 1 # set to null if machine_type comes with in-built gpu
   ngc_api_key: '<replace-with-ngc-api-key>'
   ngc_email: '<replace-with-ngc-email>'
-  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-toolkit-api-4.0.0.tgz'
+  chart: 'https://helm.ngc.nvidia.com/nvidia/tao/charts/tao-api-5.5.0'
   chart_values: |
     ---
   gpu_operator_version: 'v23.3.2'
-  nvidia_driver_version: '525.85.12'
+  nvidia_driver_version: '535.161.08'

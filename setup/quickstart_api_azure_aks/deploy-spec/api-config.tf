@@ -113,11 +113,27 @@ resource "helm_release" "nfs_subdir_external_provisioner" {
   replace          = true
   set {
     name  = "nfs.path"
-    value = "/mnt/nfs_share"
+    value = "/csp_mnt/nfs_share"
   }
   set {
     name  = "nfs.server"
     value = module.nfs_server.private_ip
+  }
+  set {
+    name  = "nfs.reclaimPolicy"
+    value = "Retain"
+  }
+  set {
+    name  = "storageClass.onDelete"
+    value = "retain"
+  }
+  set {
+    name  = "storageClass.pathPattern"
+    value = "$${.PVC.namespace}-$${.PVC.name}"
+  }
+  set {
+    name  = "storageClass.reclaimPolicy"
+    value = "Retain"
   }
   depends_on = [kubernetes_daemon_set_v1.install_nfs_common]
 }
@@ -125,6 +141,23 @@ resource "helm_release" "nfs_subdir_external_provisioner" {
 resource "kubernetes_secret_v1" "imagepullsecret" {
   metadata {
     name = "imagepullsecret"
+  }
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        (local.ngc_registry) = {
+          "auth" = base64encode("${local.ngc_username}:${var.ngc_api_key}")
+        }
+      }
+    })
+  }
+  depends_on = [module.aks]
+}
+
+resource "kubernetes_secret_v1" "bcpclustersecret" {
+  metadata {
+    name = "bcpclustersecret"
   }
   type = "kubernetes.io/dockerconfigjson"
   data = {
@@ -143,7 +176,7 @@ resource "kubernetes_secret_v1" "imagepullsecret" {
 }
 
 resource "helm_release" "tao_toolkit_api" {
-  name                = "tao-toolkit-api"
+  name                = "tao-api"
   repository          = null
   chart               = var.chart
   version             = null
@@ -158,6 +191,7 @@ resource "helm_release" "tao_toolkit_api" {
   values              = [var.chart_values]
   depends_on = [
     kubernetes_secret_v1.imagepullsecret,
+    kubernetes_secret_v1.bcpclustersecret,
     time_sleep.wait_for_gpu_operator_up,
     helm_release.ingress_nginx,
     helm_release.nfs_subdir_external_provisioner

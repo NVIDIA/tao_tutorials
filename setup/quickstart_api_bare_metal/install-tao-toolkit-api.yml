@@ -14,8 +14,6 @@
   tasks:
   - name: install nginx ingress controller
     shell: "{{ item }}"
-    args:
-      warn: false
     with_items:
     - helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx --force-update
     - helm repo update
@@ -48,19 +46,50 @@
         name: nfs-kernel-server
   - name: install storage provisioner
     shell: "{{ item }}"
-    args:
-      warn: false
     with_items:
     - helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/ --force-update
     - helm repo update
-    - helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --atomic --wait nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server={{ ansible_default_ipv4.address }} --set nfs.path=/mnt/nfs_share
+    - helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --atomic --wait nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server={{ ansible_default_ipv4.address }} --set nfs.path=/mnt/nfs_share --set nfs.reclaimPolicy=Retain --set storageClass.onDelete=retain --set storageClass.pathPattern=\$\{\.PVC\.namespace\}\-\$\{\.PVC\.name\} --set storageClass.reclaimPolicy=Retain
+  - name: prepare imagepullsecret
+    shell: >
+      jq -rn --arg auth "$(echo -n '$oauthtoken:{{ ngc_api_key }}' | base64 -w 0)" '{auths: {"nvcr.io": {auth: $auth}}} | @base64'
+    register: imagepullsecret
+  - name: prepare imagepullsecret.yml
+    copy:
+      content: |
+        apiVersion: v1
+        kind: Secret
+        type: kubernetes.io/dockerconfigjson
+        metadata:
+          name: imagepullsecret
+          namespace: default
+        data:
+          .dockerconfigjson: {{ imagepullsecret.stdout }}
+      dest: /tmp/imagepullsecret.yml
   - name: setup imagepullsecret
-    shell: "{{ item }}"
-    args:
-      warn: false
-    with_items:
-    - kubectl delete secret 'imagepullsecret' --ignore-not-found
-    - kubectl create secret docker-registry 'imagepullsecret' --docker-server='nvcr.io' --docker-username='$oauthtoken' --docker-password={{ ngc_api_key }} --docker-email={{ ngc_email }} --namespace='default'
+    shell: |
+      kubectl apply -f /tmp/imagepullsecret.yml
+      rm /tmp/imagepullsecret.yml
+  - name: prepare bcpclustersecret
+    shell: >
+      jq -rn --arg un '$oauthtoken' --arg pw '{{ ngc_api_key }}' --arg email '{{ ngc_email }}' --arg auth "$(echo -n '$oauthtoken:{{ ngc_api_key }}' | base64 -w 0)" '{auths: {"nvcr.io": {username: $un, password: $pw, email: $email, auth: $auth}}} | @base64'
+    register: bcpclustersecret
+  - name: prepare bcpclustersecret.yml
+    copy:
+      content: |
+        apiVersion: v1
+        kind: Secret
+        type: kubernetes.io/dockerconfigjson
+        metadata:
+          name: bcpclustersecret
+          namespace: default
+        data:
+          .dockerconfigjson: {{ bcpclustersecret.stdout }}
+      dest: /tmp/bcpclustersecret.yml
+  - name: setup bcpclustersecret
+    shell: |
+      kubectl apply -f /tmp/bcpclustersecret.yml
+      rm /tmp/bcpclustersecret.yml
   - name: capture node names
     shell: "kubectl get nodes --no-headers --output=jsonpath='{.items[*].metadata.name}' | tr '[:blank:]' '\n'"
     register: node_names
@@ -72,9 +101,8 @@
     with_items: "{{ node_names.stdout_lines }}"
   - name: copy tao-toolkit-api helm values to master
     copy:
-      src: "{{ api_values }}"
+      content : "{{ chart_values }}"
       dest: "/tmp/tao-toolkit-api-helm-values.yml"
-      remote_src: no
   - name: add proxy config
     when: https_proxy is defined and https_proxy | length > 0
     shell: "{{ item }}"
@@ -90,7 +118,7 @@
     - "sed -i \"/^myCertConfig:/d\" /tmp/tao-toolkit-api-helm-values.yml"
     - "echo \"\nmyCertConfig: my-cert\" >> /tmp/tao-toolkit-api-helm-values.yml"
   - name: install tao-toolkit-api
-    shell: "helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --namespace default --atomic --wait tao-toolkit-api {{ api_chart }} --values /tmp/tao-toolkit-api-helm-values.yml --username='$oauthtoken' --password={{ ngc_api_key }}"
+    shell: "helm upgrade --install --reset-values --cleanup-on-fail --create-namespace --namespace default --atomic --wait tao-api {{ chart }} --values /tmp/tao-toolkit-api-helm-values.yml --username='$oauthtoken' --password={{ ngc_api_key }}"
 
 - hosts: all
   gather_facts: yes
@@ -165,14 +193,13 @@
     when: "ansible_default_ipv4.address not in cluster_ips"
     block:
     - name: add an kubernetes apt signing key for ubuntu
-      when: "ansible_distribution == 'Ubuntu'"
       apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        url: https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
         state: present
     - name: adding kubernetes apt repository for ubuntu
-      when: "ansible_distribution == 'Ubuntu'"
       apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /
         state: present
         filename: kubernetes
     - name: install kubectl
@@ -188,30 +215,16 @@
       register: helm_exists
       no_log: True
       failed_when: false
-    - name: install helm on ubuntu 18.04
-      when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04' and helm_exists.rc > 0"
+    - name: install helm
+      when: "helm_exists.rc > 0"
       become: true
       command: "{{ item }}"
-      args:
-        warn: false
       with_items:
-      - curl -O https://get.helm.sh/helm-v3.3.3-linux-amd64.tar.gz
-      - tar -xvzf helm-v3.3.3-linux-amd64.tar.gz
+      - curl -O https://get.helm.sh/helm-v3.14.2-linux-amd64.tar.gz
+      - tar -xvzf helm-v3.14.2-linux-amd64.tar.gz
       - cp linux-amd64/helm /usr/local/bin/
       - chmod 755 /usr/local/bin/helm
-      - rm -rf helm-v3.3.3-linux-amd64.tar.gz linux-amd64
-    - name: install helm on ubuntu 20.04
-      when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' and helm_exists.rc > 0"
-      become: true
-      command: "{{ item }}"
-      args:
-        warn: false
-      with_items:
-      - curl -O https://get.helm.sh/helm-v3.8.1-linux-amd64.tar.gz
-      - tar -xvzf helm-v3.8.1-linux-amd64.tar.gz
-      - cp linux-amd64/helm /usr/local/bin/
-      - chmod 755 /usr/local/bin/helm
-      - rm -rf helm-v3.8.1-linux-amd64.tar.gz linux-amd64
+      - rm -rf helm-v3.14.2-linux-amd64.tar.gz linux-amd64
   - name: setup kubeconfig
     when: "ansible_default_ipv4.address not in cluster_ips"
     block:

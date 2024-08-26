@@ -6,6 +6,13 @@ export:
   verify: true
   opset_version: 16
 
+gen_trt_engine:
+  tensorrt:
+    data_type: "FP32"
+    min_batch_size: 1
+    opt_batch_size: 8
+    max_batch_size: 16
+
 dataset:
   data:
     samples_per_gpu: 512

@@ -9,7 +9,7 @@
     no_log: true
   - name: check os version
     assert:
-      that: "ansible_distribution_version in ['18.04', '20.04']"
+      that: "ansible_distribution_version in ['22.04']"
     no_log: true
   - name: check disk size sufficient
     when: mode != 'uninstall' and mode != 'validate'
@@ -30,11 +30,11 @@
       path: /root
     no_log: true
   - name: capture gpus per node
-    shell: "lspci -mm | grep '3D controller' | awk -F '\"' '{print $6}' | sort -u | wc -l"
+    shell: "lspci -mm | grep -e '3D controller' -e 'NVIDIA Corporation' | awk -F '\"' '{print $6}' | sort -u | wc -l"
     register: gpus_per_node
-  - name: check not more than 1 gpu per node
+  - name: check gpu per node
     assert:
-      that: "{{ gpus_per_node.stdout }} <= 1"
+      that: "gpus_per_node.stdout | int >= 1"
     no_log: true
   - name: check exactly 1 master
     run_once: true
