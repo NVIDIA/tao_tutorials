@@ -1,0 +1,6 @@
+data:
+  input_format: "COCO"
+  output_format: "ODVG"
+results_dir: /data/odvg/annotations/
+coco:
+  ann_file: /data/raw-data/annotations/instances_train2017.json

@@ -1,0 +1,18 @@
+gpu_ids: [0]
+results_dir: /results
+batch_size: 4
+num_workers: 8
+autolabel_type: grounding_dino
+grounding_dino:
+  model:
+    backbone: swin_base_384_22k
+    num_queries: 900
+  dataset: 
+    image_dir: /data/raw-data/val2017/
+    class_names: ["person", "animal", "automobile"]  # If closed-set detection
+
+  checkpoint: /workspace/tao-experiments/text2box/pretrained_grounding_dino_vswin_base/swin_base.pth
+  visualize: True
+  iteration_scheduler:
+    - conf_threshold: 0.5
+      nms_threshold: 0.7

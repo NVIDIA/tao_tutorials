@@ -32,12 +32,12 @@ dataset:
   grid_map:
     x: 2
     y: 2
-  output_shape:
-    - 128
-    - 128
+  image_width: 128
+  image_height: 128
   augmentation_config:
     rgb_input_mean: [0.485, 0.456, 0.406]
     rgb_input_std: [0.229, 0.224, 0.225]
+    augment: False
 train:
   pretrained_model_path: /workspace/tao-experiments/optical_inspection/results/pretrained/optical_inspection_vtrainable_v1.0/oi_model.pth
   optim:
@@ -47,28 +47,26 @@ train:
   num_epochs: 15
   checkpoint_interval: 5
   validation_interval: ${train.checkpoint_interval}
-  results_dir: "${results_dir}/train"
+  results_dir: "/results/train"
   tensorboard:
     enabled: True
 evaluate:
-  gpu_id: 0
-  checkpoint: "${results_dir}/train/oi_model.pth"
-  results_dir: "${results_dir}/evaluate"
+  checkpoint: "/results/train/oi_model.pth"
+  results_dir: "/results/evaluate"
 export:
-  checkpoint: "${results_dir}/train/oi_model.pth"
-  results_dir: "${results_dir}/export"
+  checkpoint: "/results/train/oi_model.pth"
+  results_dir: "/results/export"
   onnx_file: "${export.results_dir}/oi_model.onnx"
   batch_size: ${dataset.batch_size}
   input_height: 512
   input_width: 128
 inference:
-  gpu_id: 0
-  checkpoint: "${results_dir}/train/oi_model.pth"
-  results_dir: "${results_dir}/inference"
+  checkpoint: "/results/train/oi_model.pth"
+  results_dir: "/results/inference"
   trt_engine: "${gen_trt_engine.trt_engine}"
   batch_size: ${dataset.batch_size}
 gen_trt_engine:
-  results_dir: "${results_dir}/gen_trt_engine"
+  results_dir: "/results/gen_trt_engine"
   onnx_file: "${export.onnx_file}"
   trt_engine: "${gen_trt_engine.results_dir}/oi_model.trt"
   batch_size: ${dataset.batch_size}

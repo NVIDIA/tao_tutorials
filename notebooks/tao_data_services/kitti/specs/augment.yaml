@@ -1,0 +1,16 @@
+results_dir: "/results"
+data:
+  image_dir: "/data/images"
+  ann_path: "/data/labels"
+  dataset_type: 'kitti'
+  batch_size: 2
+  include_masks: False
+  output_image_width: 1100
+  output_image_height: 400
+spatial_aug:
+  rotation:
+    angle: [10,30]
+    refine_box:
+      enabled: False
+      gt_cache: ""
+gpu_ids: [0]

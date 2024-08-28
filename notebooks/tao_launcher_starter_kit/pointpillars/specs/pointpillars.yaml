@@ -1,4 +1,3 @@
-results_dir: "/workspace/tao-experiments/pointpillars"
 dataset:
     class_names: ['Car', 'Pedestrian', 'Cyclist']
     type: 'GeneralPCDataset'

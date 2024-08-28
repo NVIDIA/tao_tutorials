@@ -1,0 +1,5 @@
+results_dir: /data/
+dataset: kitti
+root_dir: /data
+mode: training
+output_prefix: kitti_person

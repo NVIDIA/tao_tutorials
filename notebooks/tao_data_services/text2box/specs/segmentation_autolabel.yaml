@@ -1,0 +1,14 @@
+gpu_ids: [0]
+results_dir: /results
+batch_size: 4
+num_workers: 8
+autolabel_type: "mal"
+mal:
+  checkpoint: /workspace/tao-experiments/text2box/mask_auto_label_vtrainable_v1.0/vit-mae-base-16epoch=10.pth
+  model:
+    arch: vit-mae-base/16
+  inference:
+    load_mask: False
+    ann_path: '/results/final_annotation.json'
+    img_dir: '/data/raw-data/val2017'
+    label_dump_path: '/results/final_instance_annotation.json'

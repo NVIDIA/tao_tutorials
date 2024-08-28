@@ -17,3 +17,7 @@ dataset:
       data_prefix: /data/imagenet/val
     test:
       data_prefix: /data/imagenet/val
+evaluate:
+  num_gpus: 1
+inference:
+  num_gpus: 1

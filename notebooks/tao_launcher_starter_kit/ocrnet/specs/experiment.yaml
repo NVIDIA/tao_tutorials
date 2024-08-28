@@ -28,10 +28,11 @@ train:
     lr: 0.1
   clip_grad_norm: 5.0
   num_epochs: 10
-  checkpoint_interval: 2
+  checkpoint_interval: 1
   validation_interval: 1
+  cudnn:
+    benchmark: True
 evaluate:
-  gpu_id: 0
   checkpoint: "??"
   test_dataset_dir: "??"
   results_dir: "${results_dir}/evaluate"
@@ -45,7 +46,6 @@ prune:
     granularity: 8
     raw_prune_score: L1
 inference:
-  gpu_id: 0
   checkpoint: "??"
   inference_dataset_dir: "??"
   results_dir: "${results_dir}/inference"

@@ -1,0 +1,49 @@
+train_subjects: ['cohface_processed/1/0',
+'cohface_processed/2/0',
+'cohface_processed/3/0',
+'cohface_processed/4/0',
+'cohface_processed/5/0',
+'cohface_processed/6/0',
+'cohface_processed/7/0',
+'cohface_processed/8/0',
+'cohface_processed/9/0',
+]
+validation_subjects: ['cohface_processed/1/0',
+'cohface_processed/2/0',
+'cohface_processed/3/0',
+'cohface_processed/4/0',
+'cohface_processed/5/0',
+'cohface_processed/6/0',
+'cohface_processed/7/0',
+'cohface_processed/8/0',
+'cohface_processed/9/0',
+]
+test_subjects: ['cohface_processed/1/0',
+'cohface_processed/2/0',
+'cohface_processed/3/0',
+'cohface_processed/4/0',
+'cohface_processed/5/0',
+'cohface_processed/6/0',
+'cohface_processed/7/0',
+'cohface_processed/8/0',
+'cohface_processed/9/0',
+]
+input_directory_path: /workspace/tao-experiments/heartratenet/data
+data_directory_output_path: /workspace/tao-experiments/heartratenet/data
+image_crop_size: 72 # Crop size. Image input size to model.
+last_frame: 'all' # Last frame to preprocess up to.
+start_frame: 60
+minimum_frames_to_preprocess: 34 # Minimum frames to preprocess. 34 is suggested.
+image_fps: 20.0 # Camera frames per second.
+lower_cutoff_freq: 0.67 # [Hz].
+upper_cutoff_freq: 4.0  # [Hz].
+scale_factor: 1.3 # parameter used for opencv facedetect
+min_neighbors: 5 # parameter used for opencv facedetect
+face_bbox_extension_factor: 0.3 # Extension ratio of detected face bbox.
+# Extends the detected face bbox to the left and right by `face_bbox_extension_factor`*`face_bbox_width`
+# Extends up and down detected face bbox by `face_bbox_extension_factor`*`face_bbox_height`.
+low_heart_bpm_cutoff: 20  # Lower beats per minute bandpass filter cutoff.
+high_heart_bpm_cutoff: 20 # High beats per minute bandpass filter cutoff.
+batch_size: 200
+batch_extra: 0.3
+model: HRNet_release

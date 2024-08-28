@@ -55,7 +55,13 @@ function tfswitch_install() {
   if ! hash tfswitch 2>/dev/null; then
     echo "Installing tfswitch"
     {
-      curl --silent -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh | sudo bash
+      curl --silent -L https://raw.githubusercontent.com/versus/terraform-switcher/release/install.sh | sudo bash
+    } > /dev/null
+  elif [[ "$(tfswitch --version | grep 'terraform-switcher' | wc -l)" -lt 1 ]]; then
+    echo "Installing tfswitch"
+    {
+      sudo rm "$(which tfswitch)"
+      curl --silent -L https://raw.githubusercontent.com/versus/terraform-switcher/release/install.sh | sudo bash
     } > /dev/null
   fi
 }
@@ -67,7 +73,9 @@ function terraform_install() {
       if [[ -f "${HOME}/bin/terraform" ]]; then
         rm "${HOME}/bin/terraform"
       fi
-      tfswitch 1.2.4
+      tfswitch -nq 1.2.4
+      mkdir -p "${HOME}/bin/"
+      cp "${HOME}/.terraform.versions/terraform_1.2.4" "${HOME}/bin/terraform"
     } > /dev/null
   fi
 }

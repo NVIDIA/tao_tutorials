@@ -8,7 +8,7 @@ train:
     weights: [0.5, 0.5, 0.5, 0.8, 1.0]
   num_epochs: 300
   num_nodes: 1
-  val_interval: 1
+  validation_interval: 1
   checkpoint_interval: 1
   optim:
     lr: 0.0002

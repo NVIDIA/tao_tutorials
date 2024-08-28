@@ -109,7 +109,7 @@ resource "helm_release" "ingress_nginx" {
   }
   set {
     name  = "controller.service.type"
-    value = "NodePort"
+    value = try(var.ingress_service_type, "NodePort")
   }
   set {
     name  = "controller.service.nodePorts.http"
@@ -140,11 +140,43 @@ resource "helm_release" "nfs_subdir_external_provisioner" {
     name  = "nfs.server"
     value = data.terraform_remote_state.cluster.outputs.nfs_server.private_ip
   }
+  set {
+    name  = "nfs.reclaimPolicy"
+    value = "Retain"
+  }
+  set {
+    name  = "storageClass.onDelete"
+    value = "retain"
+  }
+  set {
+    name  = "storageClass.pathPattern"
+    value = "$${.PVC.namespace}-$${.PVC.name}"
+  }
+  set {
+    name  = "storageClass.reclaimPolicy"
+    value = "Retain"
+  }
 }
 
 resource "kubernetes_secret_v1" "imagepullsecret" {
   metadata {
     name = "imagepullsecret"
+  }
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        (local.ngc_registry) = {
+          "auth" = base64encode("${local.ngc_username}:${var.ngc_api_key}")
+        }
+      }
+    })
+  }
+}
+
+resource "kubernetes_secret_v1" "bcpclustersecret" {
+  metadata {
+    name = "bcpclustersecret"
   }
   type = "kubernetes.io/dockerconfigjson"
   data = {
@@ -162,7 +194,7 @@ resource "kubernetes_secret_v1" "imagepullsecret" {
 }
 
 resource "helm_release" "tao_toolkit_api" {
-  name                = "tao-toolkit-api"
+  name                = "tao-api"
   repository          = null
   chart               = var.chart
   version             = null
@@ -175,5 +207,11 @@ resource "helm_release" "tao_toolkit_api" {
   repository_username = local.ngc_username
   repository_password = var.ngc_api_key
   values              = [file(pathexpand(var.chart_values_file))]
-  depends_on          = [kubernetes_secret_v1.imagepullsecret, time_sleep.wait_for_gpu_operator_up]
+  depends_on = [
+    kubernetes_secret_v1.imagepullsecret,
+    kubernetes_secret_v1.bcpclustersecret,
+    time_sleep.wait_for_gpu_operator_up,
+    helm_release.ingress_nginx,
+    helm_release.nfs_subdir_external_provisioner
+  ]
 }

@@ -12,6 +12,9 @@ resource "azurerm_kubernetes_cluster" "this" {
     vm_size             = var.vm_size
     os_disk_size_gb     = var.disk_size_gb
     vnet_subnet_id      = var.vnet_subnet_id
+    tags = {
+      SkipGPUDriverInstall = "true"
+    }
   }
   identity {
     type = "SystemAssigned"

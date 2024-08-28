@@ -1,0 +1,51 @@
+train:
+  num_gpus: 1
+  num_nodes: 1
+  validation_interval: 1
+  optim:
+    lr_backbone: 2e-05
+    lr: 2e-4
+    lr_steps: [11]
+    momentum: 0.9
+  num_epochs: 12
+  precision: fp16
+  pretrained_model_path: /workspace/tao-experiments/dino/pretrained_dino_coco_vdino_resnet_50_trainable_v1.0/dino_resnet50_ep12.pth
+dataset:
+  train_data_sources:
+    - image_dir: /data/raw-data/train2017/
+      json_file: /data/raw-data/annotations/instances_train2017.json
+  val_data_sources:
+    - image_dir: /data/raw-data/val2017/
+      json_file: /data/raw-data/annotations/instances_val2017.json
+  num_classes: 91
+  batch_size: 2
+  workers: 8
+  augmentation:
+    random_resize_max_size: 1344
+    fixed_padding: True
+model:
+  backbone: resnet_50
+  train_backbone: True
+  num_feature_levels: 4
+  dec_layers: 6
+  enc_layers: 6
+  num_queries: 900
+  num_select: 100
+  dropout_ratio: 0.0
+  dim_feedforward: 2048
+distill:
+  teacher:
+    backbone: fan_small
+    train_backbone: False
+    num_feature_levels: 4
+    dec_layers: 6
+    enc_layers: 6
+    num_queries: 900
+    dropout_ratio: 0.0
+    dim_feedforward: 2048
+  pretrained_teacher_model_path: /workspace/tao-experiments/dino/pretrained_dino_coco_vdino_fan_small_trainable_v1.0/dino_fan_small_ep12.pth
+  bindings:
+  - teacher_module_name: 'model.backbone.0.body'
+    student_module_name: 'model.backbone.0.body'
+    criterion: L2
+    weight: 1.0

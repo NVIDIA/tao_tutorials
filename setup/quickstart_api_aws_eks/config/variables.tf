@@ -31,3 +31,7 @@ variable "nvidia_driver_version" {
   type    = string
   default = null
 }
+variable "ingress_service_type" {
+  type    = string
+  default = "NodePort"
+}
