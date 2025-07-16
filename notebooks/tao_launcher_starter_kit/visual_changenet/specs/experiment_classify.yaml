@@ -8,6 +8,7 @@ train:
     cls_weight: [1.0, 10.0]
   num_epochs: 30
   num_nodes: 1
+  num_gpus: 1
   validation_interval: 1
   checkpoint_interval: 1
   optim:
@@ -104,9 +105,6 @@ gen_trt_engine:
   onnx_file: "${results_dir}/export/changenet-classify.onnx"
   trt_engine: "${results_dir}/gen_trt_engine/changenet-classify.trt"
   batch_size: ${dataset.classify.batch_size}
-  input_channel: 3
-  input_width: 128
-  input_height: 512
   tensorrt:
     data_type: FP32
     workspace_size: 1024

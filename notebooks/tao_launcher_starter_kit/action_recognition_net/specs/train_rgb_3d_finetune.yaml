@@ -34,3 +34,4 @@ train:
     lr_decay: 0.1
   num_epochs: 20
   checkpoint_interval: 1
+  num_gpus: 1

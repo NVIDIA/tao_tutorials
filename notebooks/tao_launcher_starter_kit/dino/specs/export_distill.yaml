@@ -5,8 +5,17 @@ export:
   opset_version: 12
   on_cpu: False
 dataset:
+  train_data_sources:
+    - image_dir: /data/raw-data/train2017/
+      json_file: /data/raw-data/annotations/instances_train2017.json
+  val_data_sources:
+    - image_dir: /data/raw-data/val2017/
+      json_file: /data/raw-data/annotations/instances_val2017.json
   num_classes: 91
   batch_size: -1
+  workers: 8
+  augmentation:
+    fixed_padding: False
 model:
   backbone: resnet_50
   num_feature_levels: 4

@@ -1,3 +1,4 @@
+num_gpus: 1
 dataset_convert:
   image_dir: 'DATADIR/raw-data/train2017/'
   annotations_file: 'DATADIR/raw-data/annotations/instances_train2017.json'
@@ -39,6 +40,7 @@ train:
   moving_average_decay: 0.999
   batch_size: 20
   checkpoint_interval: 5
+  validation_interval: 5
   l2_weight_decay: 0.00004
   l1_weight_decay: 0.0
   clip_gradients_norm: 10.0

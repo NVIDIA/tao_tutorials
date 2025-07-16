@@ -22,6 +22,7 @@ dataset:
 train:
   seed: 1111
   gpu_ids: [0]
+  num_gpus: 1
   optim:
     name: "adadelta"
     lr: 0.1

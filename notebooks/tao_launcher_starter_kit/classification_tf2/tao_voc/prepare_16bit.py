@@ -9,7 +9,7 @@ from os.path import join as join_path
 def to16bit(images_dir, img_file, images_dir_16_bit):
     image = Image.open(os.path.join(images_dir,img_file)).convert("L")
     # shifted to the higher byte to get a fake 16-bit image
-    image_np = np.array(image) * 256
+    image_np = np.array(image) * 255
     image16 = Image.fromarray(image_np.astype(np.uint32))
     # overwrite the image file
     img_file = os.path.splitext(img_file)[0] + '.png'

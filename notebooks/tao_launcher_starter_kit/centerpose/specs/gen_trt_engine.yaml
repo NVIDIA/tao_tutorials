@@ -4,9 +4,6 @@ gen_trt_engine:
   gpu_id: 0
   onnx_file: "???"
   trt_engine: "???"
-  input_channel: 3
-  input_width: 512
-  input_height: 512
   tensorrt:
     data_type: fp32
     workspace_size: 1024

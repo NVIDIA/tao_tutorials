@@ -1,0 +1,24 @@
+encryption_key: tlt_encode
+    
+results_dir: /tao-pt/tao-experiments/results/nvdinov2
+model:
+  backbone: 
+    teacher_type: "vit_l"
+    student_type: "vit_l"
+    drop_path_rate: 0.4
+    patch_size: 14
+    img_size: 518
+  head:
+    num_layers: 3
+    hidden_dim: 2048
+    bottleneck_dim: 384
+
+dataset:
+  test_dataset:
+    images_dir: /tao-pt/tao-experiments/data/cats_dogs_dataset/training_set/training_set/cats
+  batch_size: 16
+  workers: 10
+
+inference:
+  checkpoint: /tao-pt/tao-experiments/results/nvdinov2/train/teacher_epoch_002_step_00600.pth
+  results_dir: ${results_dir}/inference

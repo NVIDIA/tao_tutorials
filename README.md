@@ -9,7 +9,7 @@
 * [How to run TAO?](#HowtorunTAO)
 * [Important Links](#ImportantLinks)
 * [Blogs](#Blogs)
-* [ License](#License)
+* [License](#License)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -34,23 +34,23 @@ The following system configuration is recommended to achieve reasonable training
 * 1 NVIDIA GPU
 * 100 GB of SSD space
 
-TAO is supported on discrete GPUs, such as H100, A100, A40, A30, A2, A16, A100x, A30x, V100, T4, Titan-RTX and Quadro-RTX.
+TAO is supported on discrete GPUs, such as H100, A100, A40, A30, A2, A16, A100x, A30x, Titan-RTX and Quadro-RTX.
 
-> Note: TAO is not supported on GPU's before the Pascal generation
+> Note: TAO is not supported on GPU's before the Volta generation
 
 ### <a name='Softwarerequirements'></a>Software requirements
 
-| **Software**                     | **Version** | **Comment** |
-| :--- | :--- | :-- |
-| Ubuntu LTS                       | 22.04       ||
-| python                           | ==3.10.x    | Not needed if you are using TAO API \(See #3 below\) |
-| docker-ce                        | >19.03.5    | Not needed if you are using TAO API \(See #3 below\) |
-| docker-API                       | 1.40        | Not needed if you are using TAO API \(See #3 below\) |
-| `nvidia-container-toolkit`       | >1.3.0-1    | Not needed if you are using TAO API \(See #3 below\) |
-| nvidia-container-runtime         | 3.4.0-1     | Not needed if you are using TAO API \(See #3 below\) |
-| nvidia-docker2                   | 2.5.0-1     | Not needed if you are using TAO API \(See #3 below\) |
-| nvidia-driver                    | >550.xx     | Not needed if you are using TAO API \(See #3 below\) |
-| python-pip                       | >21.06      | Not needed if you are using TAO API \(See #3 below\) |
+| **Software**                     | **Version** |
+| :--- | :--- |
+| Ubuntu LTS                       | 22.04       |
+| python                           | >=3.10.x    |
+| docker-ce                        | >19.03.5    |
+| docker-API                       | 1.40        |
+| `nvidia-container-toolkit`       | >1.3.0-1    |
+| nvidia-container-runtime         | 3.4.0-1     |
+| nvidia-docker2                   | 2.5.0-1     |
+| nvidia-driver                    | >550.xx     |
+| python-pip                       | >21.06      |
 
 ## <a name='PackageContent'></a>Package Content
 
@@ -64,10 +64,6 @@ Download the TAO tutorial package which contains startup scripts, Jupyter notebo
 
     setup
         |--> quickstart_launcher.sh
-        |--> quickstart_api_bare_metal
-        |--> quickstart_api_aws_eks
-        |--> quickstart_api_azure_aks
-        |--> quickstart_api_gcp_gke
     notebooks
         |--> tao_api_starter_kit
             |--> api
@@ -91,8 +87,7 @@ Download the TAO tutorial package which contains startup scripts, Jupyter notebo
 
 The `tao_tutorials` repository is broadly classified into two components:
 
-* **setup:** A set of quick start scripts to help you install and deploy the TAO launcher and the TAO APIs on various
-  Cloud Service Providers.
+* **setup:** A set of quick start scripts to help you install and deploy the TAO launcher.
 * **notebooks:** Beginner friendly end-to-end tutorial notebooks that will help you hit the ground running with TAO. The notebooks
   install TAO, download the required data, and run TAO commands end-to-end for various use cases.
 
@@ -108,11 +103,13 @@ The `tao_tutorials` repository is broadly classified into two components:
 
 ## <a name='HowtorunTAO'></a>How to run TAO?
 
-TAO is built for users with varying levels of AI expertise. The getting started guide is thus split into different sections for different levels of user experience:
+You can run TAO in five different ways:
 
-* [Beginners](https://docs.nvidia.com/tao/tao-toolkit/text/quick_start_guide/beginner.html)
-* [Intermediate Users](https://docs.nvidia.com/tao/tao-toolkit/text/quick_start_guide/intermediate.html)
-* [Advanced Users](https://docs.nvidia.com/tao/tao-toolkit/text/quick_start_guide/advanced.html)
+* Via the [Finetuning Microservice](https://docs.nvidia.com/tao/tao-toolkit/text/tao_toolkit_api/index.html#running-tao-finetuning-microservice)
+* Via the [Launcher CLI](https://docs.nvidia.com/tao/tao-toolkit/text/quick_start_guide/running_via_launcher.html#running-tao-launcher-cli)
+* Via [containers](https://docs.nvidia.com/tao/tao-toolkit/text/quick_start_guide/running_from_containers.html#running-from-containers)
+* Via :ref:[Python wheels](https://docs.nvidia.com/tao/tao-toolkit/text//quick_start_guide/running_via_wheels.html#running-tao-via-wheels)
+* From [source code](https://docs.nvidia.com/tao/tao-toolkit/text//quick_start_guide/advanced.html#getting-started-as-an-advanced-user)
 
 ## <a name='ImportantLinks'></a>Important Links
 

@@ -1,3 +1,4 @@
+num_gpus: 1
 dataset:
   augmentation:
     rand_hflip: True
@@ -32,6 +33,7 @@ train:
   moving_average_decay: 0.999
   batch_size: 10
   checkpoint_interval: 5
+  validation_interval: 5
   l2_weight_decay: 0.00004
   l1_weight_decay: 0.0
   clip_gradients_norm: 10.0
@@ -71,8 +73,8 @@ gen_trt_engine:
     data_type: "int8"
     max_workspace_size: 2  # in Gb
     calibration:
-      cal_image_dir: ""
-      cal_cache_file: ""
+      cal_image_dir: "DATADIR/raw-data/val2017"
+      cal_cache_file: "EXPORTDIR/efficientdet-d0.cal"
       cal_batch_size: 16
       cal_batches: 10
 inference:

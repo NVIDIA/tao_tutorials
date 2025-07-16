@@ -63,9 +63,6 @@ export:
   on_cpu: False
 gen_trt_engine:
   gpu_id: 0
-  input_channel: 3
-  input_width: 640
-  input_height: 640
   tensorrt:
     data_type: fp16
     workspace_size: 4096

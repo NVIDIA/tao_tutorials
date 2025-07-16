@@ -1,4 +1,5 @@
 results_dir: 'RESULTSDIR'
+num_gpus: 1
 dataset:
   train_dataset_path: "/workspace/tao-experiments/data/split/train"
   val_dataset_path: "/workspace/tao-experiments/data/split/val"
