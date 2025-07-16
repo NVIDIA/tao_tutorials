@@ -1,23 +1,50 @@
+encryption_key: tlt_encode
+results_dir: /results/classification_experiment_fm
+wandb:
+  enable: False
+evaluate:
+  checkpoint: /results/classification_experiment_fm/train/classifier_model_latest.pth
+inference:
+  checkpoint: /results/classification_experiment_fm/train/classifier_model_latest.pth
+dataset:
+  dataset: "CLDataset"
+  root_dir: /data/imagenet
+  batch_size: 128
+  workers: 8
+  num_classes: 1000
+  img_size: 224
+  augmentation:
+    random_flip:
+      vflip_probability: 0
+      hflip_probability: 0.5
+      enable: True
+    random_rotate:
+      rotate_probability: 0.5
+      angle_list: [90, 180, 270]
+      enable: False
+    random_color:
+      brightness: 0.4
+      contrast: 0.4
+      saturation: 0.4
+      enable: True
+    with_scale_random_crop:
+      enable: False
+    with_random_crop: True
+    with_random_blur: False
+  train_dataset:
+    images_dir: /data/imagenet/train
+  val_dataset:
+    images_dir: /data/imagenet/val
+  test_dataset:
+    images_dir: /data/imagenet/val
 model:
   backbone:
-    type: "open_clip"
-    custom_args:
-      model_name: "ViT-B-32"
-    freeze: true
+    type: "ViT-L-14-SigLIP-CLIPA-224"
+    pretrained_backbone_path: null
+    freeze_backbone: False
   head:
-    type: TAOLinearClsHead
-    num_classes: 1000
-    in_channels: 512
+    type: "TAOLinearClsHead"
+    binary: False
     topk: [1, 5]
-dataset:
-  data:
-    train:
-      data_prefix: /data/imagenet/train
-    val:
-      data_prefix: /data/imagenet/val
-    test:
-      data_prefix: /data/imagenet/val
-evaluate:
-  num_gpus: 1
-inference:
-  num_gpus: 1
+    loss:
+      type: CrossEntropyLoss

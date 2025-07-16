@@ -22,7 +22,8 @@ gen_trt_engine:
       "/backbone/Mul:fp32",
     ]
     calibration:
-      cal_image_dir: /data/ocdnet_vit/train/img
+      cal_image_dir: 
+        - /data/ocdnet_vit/train/img
       cal_cache_file: /results/export/cal.bin
       cal_batch_size: 8
-      cal_num_batches: 2
+      cal_batches: 2

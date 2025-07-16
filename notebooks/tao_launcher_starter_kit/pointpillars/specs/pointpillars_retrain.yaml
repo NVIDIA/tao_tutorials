@@ -140,6 +140,7 @@ model:
     sync_bn: False
 
 train:
+    num_gpus: 1
     batch_size: 4
     num_epochs: 80
     optimizer: adam_onecycle

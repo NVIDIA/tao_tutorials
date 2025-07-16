@@ -4,7 +4,7 @@ model:
   backbone: swin_tiny_patch4_window7_224
   last_stride: 1
   pretrain_choice: self
-  pretrained_model_path: "/model/market1501/swintiny_pretrained.pth"
+  pretrained_model_path: "/model/reidentificationnet_transformer_vswin_tiny_256/swin_tiny_market1501_aicity156_featuredim256.tlt"
   input_channels: 3
   input_width: 128
   input_height: 256
@@ -57,4 +57,5 @@ train:
     triplet_loss_margin: 0.3
     large_fc_lr: False
   num_epochs: 120
+  num_gpus: 1
   checkpoint_interval: 10

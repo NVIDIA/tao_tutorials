@@ -1,49 +1,66 @@
+encryption_key: tlt_encode
+results_dir: /results
+wandb:
+  enable: False
 train:
-  exp_config:
-    manual_seed: 49
-  train_config:
-    runner:
-      max_epochs: 40
-    checkpoint_config:
-      interval: 1
-    logging:
-      interval: 500
-    validate: True
-    evaluation:
-      interval: 1
-    custom_hooks:
-      - type: "EMAHook"
-        momentum: 4e-5
-        priority: "ABOVE_NORMAL"
+  enable_ema: False
+  seed: 47
+  resume_training_checkpoint_path: null
+  num_nodes: 1
+  num_gpus: 1
+  gpu_ids: [0]
+  validation_interval: 1
+  checkpoint_interval: 1
+  tensorboard:
+    enabled: True
+  optim:
+    lr: 0.001
+    optim: "adamw"
+    policy: "cosine"
+    weight_decay: 0.05
+    warmup_epochs: 0
 dataset:
-  data:
-    samples_per_gpu: 8
-    train:
-      data_prefix: /data/cats_dogs_dataset/training_set/training_set/
-      pipeline: # Augmentations alone
-        - type: RandomResizedCrop
-          scale: 224
-        - type: RandomFlip
-          prob: 0.5
-          direction: "horizontal"
-      classes: /data/cats_dogs_dataset/classes.txt
-    val:
-      data_prefix: /data/cats_dogs_dataset/val_set/val_set
-      classes: /data/cats_dogs_dataset/classes.txt
-    test:
-      data_prefix: /data/cats_dogs_dataset/val_set/val_set
-      classes: /data/cats_dogs_dataset/classes.txt
+  dataset: "CLDataset"
+  root_dir: /data/cats_dogs_dataset
+  batch_size: 128
+  workers: 8
+  num_classes: 2
+  img_size: 224
+  augmentation:
+    random_flip:
+      vflip_probability: 0
+      hflip_probability: 0.5
+      enable: True
+    random_rotate:
+      rotate_probability: 0.5
+      angle_list: [90, 180, 270]
+      enable: True
+    random_color:
+      brightness: 0.4
+      contrast: 0.4
+      saturation: 0.4
+      enable: False
+    with_scale_random_crop:
+      enable: False
+    with_random_crop: False
+    with_random_blur: False
+  train_dataset:
+    images_dir: /data/cats_dogs_dataset/training_set/training_set
+  val_dataset:
+    images_dir: /data/cats_dogs_dataset/val_set/val_set
+  test_dataset:
+    images_dir: /data/cats_dogs_dataset/test_set/test_set
 model:
   backbone:
     type: "fan_small_12_p4_hybrid"
-    custom_args:
-      drop_path: 0.1
+    pretrained_backbone_path: /workspace/tao-experiments/pretrained_fan_hybrid_small/pretrained_fan_classification_imagenet_vfan_hybrid_small/fan_hybrid_small.pth
+    freeze_backbone: True
   head:
     type: "TAOLinearClsHead"
-    custom_args:
-      head_init_scale: 1
-    num_classes: 2
+    binary: False
+    topk: [1]
     loss:
-      type: "CrossEntropyLoss"
-      loss_weight: 1.0
-      use_soft: False
+      type: CrossEntropyLoss
+      label_smooth_val: 0.1
+
+

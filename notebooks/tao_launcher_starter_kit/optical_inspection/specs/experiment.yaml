@@ -45,6 +45,7 @@ train:
     lr: 0.0005
   loss: contrastive
   num_epochs: 15
+  num_gpus: 1
   checkpoint_interval: 5
   validation_interval: ${train.checkpoint_interval}
   results_dir: "/results/train"

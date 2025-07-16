@@ -17,6 +17,7 @@ import os
 import glob
 import re
 import shutil
+import json
 
 DATA_DIR=os.environ.get('DATA_DIR')
 source_dir = join_path(DATA_DIR, "VOCdevkit/VOC2012")
@@ -90,5 +91,13 @@ with open(f'{DATA_DIR}/classes.txt', 'w') as f:
     for class_name in class_names:
         f.write(f"{class_name}\n")
 
+classmap = {}
+for idx, class_name in enumerate(class_names):
+    classmap[class_name] = idx
+
+with open(f'{DATA_DIR}/classmap.json', 'w') as json_file:
+    json.dump(classmap, json_file)
+
 shutil.copy2(f'{DATA_DIR}/classes.txt',TARGET_DIR)
+shutil.copy2(f'{DATA_DIR}/classmap.json',TARGET_DIR)
 print('Done splitting dataset.')

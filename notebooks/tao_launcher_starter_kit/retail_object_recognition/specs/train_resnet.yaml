@@ -32,6 +32,7 @@ train:
     triplet_loss_margin: 0.3
     miner_function_margin: 0.1
   num_epochs: 140
+  num_gpus: 1
   resume_training_checkpoint_path: null
   checkpoint_interval: 1
   smooth_loss: False
