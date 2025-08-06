@@ -1,0 +1,23 @@
+encryption_key: tlt_encode
+    
+results_dir: /tao-pt/tao-experiments/results/nvdinov2
+model:
+  backbone: 
+    teacher_type: "vit_l"
+    student_type: "vit_l"
+    drop_path_rate: 0.4
+    patch_size: 14
+    img_size: 518
+  head:
+    num_layers: 3
+    hidden_dim: 2048
+    bottleneck_dim: 384
+
+export:
+  results_dir: "${results_dir}/export"
+  gpu_id: 0
+  checkpoint: /tao-pt/tao-experiments/results/nvdinov2/train/teacher_epoch_002_step_00600.pth
+  onnx_file: "${results_dir}/nvdinov2.onnx"
+  input_width: 518
+  input_height: 518
+  batch_size: 16

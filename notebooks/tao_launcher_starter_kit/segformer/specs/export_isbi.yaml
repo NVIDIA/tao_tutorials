@@ -1,54 +1,56 @@
+encryption_key: tlt_encode
 export:
-  input_height: 512
-  input_width: 512
-  input_channel: 3
-model:
-  input_height: 512
-  input_width: 512
-  backbone:
-    type: "mit_b1"
-dataset:
-  img_norm_cfg:
-      mean:
-          - 127.5
-          - 127.5
-          - 127.5
-      std:
-          - 127.5
-          - 127.5
-          - 127.5
-  test_dataset:
-      img_dir: /data/images/val
-      ann_dir: /data/masks/val
-      pipeline:
-        augmentation_config:
-          resize:
-            keep_ratio: True
-  input_type: "grayscale"
-  data_root: /tlt-pytorch
-  palette:
-    - seg_class: foreground
-      rgb:
-        - 0
-        - 0
-        - 0
-      label_id: 0
-      mapping_class: foreground
-    - seg_class: background
-      rgb:
-        - 255
-        - 255
-        - 255
-      label_id: 1
-      mapping_class: background
-  workers_per_gpu: 1
+  results_dir: "${results_dir}/export"
+  gpu_id: 0
+  checkpoint: /result/isbi_experiment/segformer_model_latest.pth
+  onnx_file: "${export.results_dir}/segformer.onnx"
+  input_width: 224
+  input_height: 224
   batch_size: -1
 gen_trt_engine:
-  input_width: 512
-  input_height: 512
   tensorrt:
     data_type: FP32
-    workspace_size: 1024
     min_batch_size: 1
-    opt_batch_size: 1
-    max_batch_size: 1
+    opt_batch_size: 4
+    max_batch_size: 16
+results_dir: /results/isbi_experiment
+model:
+  backbone:
+    type: "mit_b1"
+    pretrained_backbone_path: null
+    freeze_backbone: False
+  decode_head:
+    feature_strides: [4, 8, 16, 32]
+dataset:
+  segment:
+    dataset: "SFDataset"
+    root_dir: /data
+    label_transform: "norm"
+    batch_size: 4
+    workers: 4
+    num_classes: 2
+    img_size: 224
+    train_split: "train"
+    validation_split: "val"
+    test_split: 'test'
+    predict_split: 'test'
+    augmentation:
+      random_flip:
+        vflip_probability: 0.5
+        hflip_probability: 0.5
+        enable: True
+      random_rotate:
+        rotate_probability: 0.5
+        angle_list: [90, 180, 270]
+        enable: True
+      random_color:
+        brightness: 0.3
+        contrast: 0.3
+        saturation: 0.3
+        hue: 0.3
+        enable: False
+      with_scale_random_crop:
+        enable: True
+      with_random_crop: True
+      with_random_blur: False
+

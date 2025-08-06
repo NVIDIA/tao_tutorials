@@ -1,8 +1,8 @@
 results_dir: '/results'
-strategy: 'ddp'
 model:
   arch: 'vit-mae-base/16'
 train:
+  num_gpus: 1
   lr: 0.000001
   num_epochs: 10
   warmup_epochs: 0

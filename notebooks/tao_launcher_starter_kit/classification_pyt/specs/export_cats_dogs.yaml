@@ -1,20 +1,38 @@
+encryption_key: tlt_encode
+results_dir: /results
+wandb:
+  enable: False
+export:
+  results_dir: "${results_dir}/export"
+  gpu_id: 0
+  onnx_file: "${export.results_dir}/classifier.onnx"
+  input_width: 224
+  input_height: 224
+  batch_size: -1
+gen_trt_engine:
+  tensorrt:
+    data_type: "FP32"
+  batch_size: 1
+dataset:
+  dataset: "CLDataset"
+  root_dir: /data/cats_dogs_dataset
+  batch_size: 1
+  workers: 8
+  num_classes: 2
+  img_size: 224
+  train_dataset:
+    images_dir: /data/cats_dogs_dataset/training_set/training_set
+  val_dataset:
+    images_dir: /data/cats_dogs_dataset/val_set/val_set
+  test_dataset:
+    images_dir: /data/cats_dogs_dataset/test_set/test_set
 model:
   backbone:
     type: "fan_small_12_p4_hybrid"
   head:
-    type: "FANLinearClsHead"
-    custom_args:
-      head_init_scale: 1
-    num_classes: 2
-export:
-  opset_version: 12
-  verify: False
-  input_channel: 3
-  input_width: 224
-  input_height: 224
-gen_trt_engine:
-  tensorrt:
-    data_type: "FP32"
-    min_batch_size: 1
-    opt_batch_size: 8
-    max_batch_size: 16
+    type: "TAOLinearClsHead"
+    binary: False
+    topk: [1]
+    loss:
+      type: CrossEntropyLoss
+      label_smooth_val: 0.1

@@ -1,68 +1,55 @@
+encryption_key: tlt_encode
 train:
-  exp_config:
-      manual_seed: 49
-  checkpoint_interval: 200
-  logging_interval: 50
-  max_iters: 1000
   resume_training_checkpoint_path: null
-  validate: True
-  validation_interval: 500
-  trainer:
-      find_unused_parameters: True
-      sf_optim:
-        lr: 0.00006
+  segment:
+    loss: "ce"
+  num_epochs: 300
+  num_nodes: 1
+  validation_interval: 1
+  checkpoint_interval: 300
+  optim:
+    lr: 0.0001
+    optim: "adamw"
+    policy: "linear"
+    weight_decay: 0.0005
+results_dir: /results/isbi_experiment
 model:
-  input_height: 512
-  input_width: 512
-  pretrained_model_path: null
   backbone:
     type: "mit_b1"
+    pretrained_backbone_path: null
+    freeze_backbone: False
+  decode_head:
+    feature_strides: [4, 8, 16, 32]
 dataset:
-  input_type: "grayscale"
-  img_norm_cfg:
-        mean:
-          - 127.5
-          - 127.5
-          - 127.5
-        std:
-          - 127.5
-          - 127.5
-          - 127.5
-        to_rgb: True
-  data_root: /tlt-pytorch
-  train_dataset:
-      img_dir:
-        - /data/images/train
-      ann_dir:
-        - /data/masks/train
-      pipeline:
-        augmentation_config:
-          random_crop:
-            cat_max_ratio: 0.75
-          resize:
-            ratio_range:
-              - 0.5
-              - 2.0
-          random_flip:
-            prob: 0.5
-  val_dataset:
-      img_dir: /data/images/val
-      ann_dir: /data/masks/val
-  palette:
-    - seg_class: foreground
-      rgb:
-        - 0
-        - 0
-        - 0
-      label_id: 0
-      mapping_class: foreground
-    - seg_class: background
-      rgb:
-        - 255
-        - 255
-        - 255
-      label_id: 1
-      mapping_class: background
-  repeat_data_times: 500
-  batch_size: 4
-  workers_per_gpu: 1
+  segment:
+    dataset: "SFDataset"
+    root_dir: /data
+    label_transform: "norm"
+    batch_size: 4
+    workers: 4
+    num_classes: 2
+    img_size: 224
+    train_split: "train"
+    validation_split: "val"
+    test_split: 'test'
+    predict_split: 'test'
+    augmentation:
+      random_flip:
+        vflip_probability: 0.5
+        hflip_probability: 0.5
+        enable: True
+      random_rotate:
+        rotate_probability: 0.5
+        angle_list: [90, 180, 270]
+        enable: True
+      random_color:
+        brightness: 0.3
+        contrast: 0.3
+        saturation: 0.3
+        hue: 0.3
+        enable: False
+      with_scale_random_crop:
+        enable: True
+      with_random_crop: True
+      with_random_blur: False
+

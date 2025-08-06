@@ -1,51 +1,37 @@
-results_dir: ???
-
+encryption_key: tlt_encode
+results_dir: /results/classification_experiment_fm
+wandb:
+  enable: False
 export:
-  checkpoint: "???"
-  onnx_file: "???"
-  verify: true
-  opset_version: 16
-
+  results_dir: "${results_dir}/export"
+  gpu_id: 0
+  onnx_file: "${export.results_dir}/classifier.onnx"
+  input_width: 224
+  input_height: 224
+  batch_size: -1
 gen_trt_engine:
   tensorrt:
     data_type: "FP32"
-    min_batch_size: 1
-    opt_batch_size: 8
-    max_batch_size: 16
-
+  batch_size: 1
 dataset:
-  data:
-    samples_per_gpu: 512
-    workers_per_gpu: 8
-    train:
-      data_prefix: /data/train
-      pipeline: # Augmentations alone
-        - type: RandomResizedCrop
-          size: 224
-        - type: RandomFlip
-          flip_prob: 0.5
-          direction: "horizontal"
-        - type: ColorJitter
-          brightness: 0.4
-          contrast: 0.4
-          saturation: 0.4
-    val:
-      data_prefix: /data/val
-    test:
-      data_prefix: /data/val
-
+  dataset: "CLDataset"
+  root_dir: /data/imagenet
+  batch_size: 1
+  workers: 8
+  num_classes: 1000
+  img_size: 224
+  train_dataset:
+    images_dir: /data/imagenet/train
+  val_dataset:
+    images_dir: /data/imagenet/val
+  test_dataset:
+    images_dir: /data/imagenet/val
 model:
   backbone:
-    type: "open_clip"
-    custom_args:
-      model_name: "ViT-B-32"
-    freeze: false
+    type: "ViT-L-14-SigLIP-CLIPA-224"
   head:
-    type: TAOLinearClsHead
-    num_classes: 1000
-    in_channels: 512
+    type: "TAOLinearClsHead"
+    binary: False
+    topk: [1, 5]
     loss:
       type: CrossEntropyLoss
-      loss_weight: 1.0
-      use_soft: False
-    topk: [1, 5]
