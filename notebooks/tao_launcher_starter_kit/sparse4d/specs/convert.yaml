@@ -1,0 +1,40 @@
+data:
+  input_format: "AICity"
+  output_format: "OVPKL"
+aicity:
+  root: ???
+  version: "2025"
+  split: "train"
+  class_config:
+    CLASS_LIST:
+      - "Person"
+      - "FourierGR1T2"
+      - "AgilityDigit"
+      - "Transporter"
+    SUB_CLASS_DICT: {}
+    MAP_CLASS_NAMES:
+      "Person": "Person"
+      "FourierGR1T2": "FourierGR1T2"
+      "AgilityDigit": "AgilityDigit"
+      "Transporter": "Transporter"
+    ATTRIBUTE_DICT:
+      "Person": "person.moving"
+      "FourierGR1T2": "fourier_gr1_t2.moving"
+      "AgilityDigit": "agility_digit.moving"
+      "Transporter": "transporter.moving"
+    CLASS_RANGE_DICT:
+      "Person": 40
+      "FourierGR1T2": 40
+      "AgilityDigit": 40
+      "Transporter": 40
+  recentering: true
+  rgb_format: "mp4"
+  depth_format: "h5"
+  camera_grouping_mode: "random"
+  num_frames: 9000
+  anchor_init_config:
+    num_anchor: 900
+    detection_range: -1
+    sample_ratio: -1
+    output_file_name: "anchor_init_kmeans900.npy"
+results_dir: ???
