@@ -189,9 +189,8 @@ dataset:
   ]
   type: "omniverse_3d_det_track"
   data_root: "/data/Warehouse_014/"
-  anno_root: "/data/Warehouse_014/anno_pkls/"
   train_dataset:
-    ann_file: "${dataset.anno_root}/ov_train_split/"
+    ann_file: "${dataset.data_root}/anno_pkls/ov_train_split/"
     test_mode: false
     use_valid_flag: true
     with_seq_flag: true
@@ -199,13 +198,13 @@ dataset:
     keep_consistent_seq_aug: true
     same_scene_in_batch: true
   val_dataset:
-    ann_file: "${dataset.anno_root}/ov_infos_val.pkl"
+    ann_file: "${dataset.data_root}/anno_pkls/ov_infos_val.pkl"
     test_mode: true
     use_valid_flag: true
     tracking: true
     tracking_threshold: 0.2
   test_dataset:
-    ann_file: "${dataset.anno_root}/ov_test_split/Warehouse_014+bev-sensor-buffer-zone-c6_infos_test.pkl"
+    ann_file: "${dataset.data_root}/anno_pkls/ov_test_split/Warehouse_014+bev-sensor-buffer-zone-c6_infos_test.pkl"
     test_mode: true
     use_valid_flag: true
     tracking: true
