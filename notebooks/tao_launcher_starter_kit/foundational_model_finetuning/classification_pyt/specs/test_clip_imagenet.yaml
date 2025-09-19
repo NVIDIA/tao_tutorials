@@ -39,7 +39,7 @@ dataset:
     images_dir: /data/imagenet/val
 model:
   backbone:
-    type: "ViT-L-14-SigLIP-CLIPA-224"
+    type: "vit_l_14_siglip_clipa_224"
     pretrained_backbone_path: null
     freeze_backbone: False
   head:

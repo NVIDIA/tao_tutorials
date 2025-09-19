@@ -28,7 +28,7 @@ dataset:
     images_dir: /data/imagenet/val
 model:
   backbone:
-    type: "ViT-L-14-SigLIP-CLIPA-224"
+    type: "vit_l_14_siglip_clipa_224"
   head:
     type: "TAOLinearClsHead"
     binary: False
