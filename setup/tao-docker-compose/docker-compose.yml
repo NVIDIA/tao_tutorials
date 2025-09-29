@@ -1,0 +1,191 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    expose:
+      - "27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: default-user
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGOSECRET:-mongosecret}
+    networks:
+      - default
+  
+  # SeaweedFS Services
+  seaweedfs-master:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-master
+    command: 'master -ip=seaweedfs-master -port=9333 -defaultReplication=${SEAWEEDFS_REPLICATION:-000}'
+    ports:
+      - "9333:9333"
+    volumes:
+      - seaweedfs_master_data:/data
+    networks:
+      - default
+    profiles:
+      - seaweedfs
+
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-volume
+    command: 'volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data'
+    ports:
+      - "8080:8080"
+    volumes:
+      - seaweedfs_volume_data:/data
+    depends_on:
+      - seaweedfs-master
+    networks:
+      - default
+    profiles:
+      - seaweedfs
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-filer
+    command: 'filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -port=8888'
+    ports:
+      - "8888:8888"
+    volumes:
+      - seaweedfs_filer_data:/data
+    depends_on:
+      - seaweedfs-master
+      - seaweedfs-volume
+    networks:
+      - default
+    profiles:
+      - seaweedfs
+
+  seaweedfs-s3:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-s3
+    command: 's3 -filer=seaweedfs-filer:8888 -ip.bind=0.0.0.0 -port=8333 -config=/etc/seaweedfs/s3.json'
+    ports:
+      - "8333:8333"
+    volumes:
+      - ./s3-config.json:/etc/seaweedfs/s3.json:ro
+    depends_on:
+      - seaweedfs-filer
+    networks:
+      - default
+    profiles:
+      - seaweedfs
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-8090}:80"
+      - "${NGINX_HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx_sites/default.conf:/etc/nginx/conf.d/default.conf.template:ro
+    environment:
+      - SEAWEEDFS_CONFIG=${SEAWEEDFS_CONFIG:-}
+    command: >
+      sh -c "envsubst '$$SEAWEEDFS_CONFIG' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && 
+             nginx -g 'daemon off;'"
+    depends_on:
+      - tao_api_app
+    networks:
+      - default
+  tao_api_pretrained_models:
+    image: ${IMAGE_TAO_API:-nvcr.io/ea-tlt/tao_ea/tao-toolkit_5.0.0-tf2.11.0_2507_inf:latest}
+    container_name: pretrained_models_init
+    pull_policy: always
+    command: ["/bin/bash", "-c", "if [ \"${AIRGAPPED_MODE:-true}\" = \"true\" ]; then echo 'Skipping PTM pull in air-gapped mode'; exit 0; else if [ -d '${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages' ]; then python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/pretrained_models.py --org-teams=nvidia/tao,nvstaging/tao,ea-tlt/tao_ea; else python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/site-packages/nvidia_tao_core/microservices/pretrained_models.py --org-teams=nvidia/tao,nvstaging/tao,ea-tlt/tao_ea; fi; fi"]
+    privileged: true
+    environment:
+      HOST_PLATFORM: local-docker
+      BACKEND: local-docker
+      MONGOSECRET: mongosecret
+      AIRGAPPED_MODE: ${AIRGAPPED_MODE:-true}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./secrets.json:/var/secrets/secrets.json:ro
+    profiles:
+      - ptm
+  tao_api_app:
+    image: ${IMAGE_TAO_API:-nvcr.io/ea-tlt/tao_ea/tao-toolkit_5.0.0-tf2.11.0_2507_inf:latest}
+    container_name: tao_api_app
+    pull_policy: always
+    command: ["/bin/bash", "-c", "if [ -f '${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/app_start.sh' ]; then /bin/bash ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/app_start.sh; else /bin/bash ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/site-packages/nvidia_tao_core/microservices/app_start.sh; fi"]
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./secrets.json:/var/secrets/secrets.json:ro
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_NETWORK: tao_default
+      HOST_PLATFORM: local-docker
+      BACKEND: local-docker
+      MONGOSECRET: mongosecret
+      CALLBACK_UUID: ${CALLBACK_UUID:-969a20c3-ab3a-5e47-ab27-0385d42c1738}
+      HOSTBASEURL: ${HOSTBASEURL:-http://tao_api_app:8000}
+      NUM_GPU_PER_NODE: ${NUM_GPU_PER_NODE:-1}
+      IMAGE_API: ${IMAGE_TAO_API:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_PYTORCH: ${IMAGE_TAO_PYTORCH:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_DEPLOY: ${IMAGE_TAO_DEPLOY:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-deploy}
+      IMAGE_VILA: ${IMAGE_VILA:-nvcr.io/ea-tlt/tao_ea/vila_fine_tuning:latest}
+      IMAGE_DEFAULT: ${IMAGE_TAO_PYTORCH:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_DS: ${IMAGE_TAO_DS:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-data-services}
+      IMAGE_COSMOS_RL: ${IMAGE_COSMOS_RL:-nvcr.io/nvstaging/tao/cosmos_rl_ram_dev:latest}
+      USE_ADMIN_KEY: ${USE_ADMIN_KEY:-True}
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-PROD}
+      MAX_GPU_PER_USER_REALTIME_INFER: ${MAX_GPU_PER_USER_REALTIME_INFER:-1}
+      PYTHONIOENCODING: utf-8
+      LC_ALL: C.UTF-8
+      AIRGAPPED_MODE: ${AIRGAPPED_MODE:-true}
+      LOCAL_MODEL_REGISTRY: ${LOCAL_MODEL_REGISTRY:-/shared-storage/models}
+    expose:
+      - "8000"
+    depends_on:
+      - mongodb
+    networks:
+      - default
+  tao_api_workflow:
+    image: ${IMAGE_TAO_API:-nvcr.io/ea-tlt/tao_ea/tao-toolkit_5.0.0-tf2.11.0_2507_inf:latest}
+    container_name: tao_api_workflow
+    pull_policy: always
+    command: ["/bin/bash", "-c", "if [ -f '${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/workflow_start.sh' ]; then /bin/bash ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/workflow_start.sh; else /bin/bash ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/site-packages/nvidia_tao_core/microservices/workflow_start.sh; fi"]
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./secrets.json:/var/secrets/secrets.json:ro
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_NETWORK: tao_default
+      HOST_PLATFORM: local-docker
+      BACKEND: local-docker
+      DEBUG_MODE: "True"
+      MONGOSECRET: mongosecret
+      CALLBACK_UUID: ${CALLBACK_UUID:-969a20c3-ab3a-5e47-ab27-0385d42c1738}
+      HOSTBASEURL: ${HOSTBASEURL:-http://tao_api_app:8000}
+      NUM_GPU_PER_NODE: ${NUM_GPU_PER_NODE:-1}
+      IMAGE_API: ${IMAGE_TAO_API:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_PYTORCH: ${IMAGE_TAO_PYTORCH:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_DEPLOY: ${IMAGE_TAO_DEPLOY:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-deploy}
+      IMAGE_VILA: ${IMAGE_VILA:-nvcr.io/ea-tlt/tao_ea/vila_fine_tuning:latest}
+      IMAGE_DEFAULT: ${IMAGE_TAO_PYTORCH:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-pyt}
+      IMAGE_TAO_DS: ${IMAGE_TAO_DS:-nvcr.io/nvidia/tao/tao-toolkit:6.25.10-data-services}
+      IMAGE_COSMOS_RL: ${IMAGE_COSMOS_RL:-nvcr.io/nvstaging/tao/cosmos_rl_ram_dev:latest}
+      USE_ADMIN_KEY: ${USE_ADMIN_KEY:-True}
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-PROD}
+      MAX_GPU_PER_USER_REALTIME_INFER: ${MAX_GPU_PER_USER_REALTIME_INFER:-1}
+      PYTHONIOENCODING: utf-8
+      LC_ALL: C.UTF-8
+      AIRGAPPED_MODE: ${AIRGAPPED_MODE:-true}
+      LOCAL_MODEL_REGISTRY: ${LOCAL_MODEL_REGISTRY:-/shared-storage/models}
+    depends_on:
+      - mongodb
+    networks:
+      - default
+volumes:
+  mongodb_data:
+  seaweedfs_master_data:
+  seaweedfs_volume_data:
+  seaweedfs_filer_data:
+networks:
+  default:
+    name: tao_default
