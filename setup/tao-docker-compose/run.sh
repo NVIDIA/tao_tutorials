@@ -168,21 +168,24 @@ configure_seaweedfs_config() {
         export SEAWEEDFS_CONFIG='
     # SeaweedFS routes
     location /seaweedfs/master/ {
-        proxy_pass http://seaweedfs-master:9333/;
+        set $seaweedfs_master http://seaweedfs-master:9333;
+        proxy_pass $seaweedfs_master;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /seaweedfs/filer/ {
-        proxy_pass http://seaweedfs-filer:8888/;
+        set $seaweedfs_filer http://seaweedfs-filer:8888;
+        proxy_pass $seaweedfs_filer;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /seaweedfs/s3/ {
-        proxy_pass http://seaweedfs-s3:8333/;
+        set $seaweedfs_s3 http://seaweedfs-s3:8333;
+        proxy_pass $seaweedfs_s3;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

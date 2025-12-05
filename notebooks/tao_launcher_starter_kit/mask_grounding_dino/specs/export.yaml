@@ -13,7 +13,8 @@ model:
   num_queries: 900
   dropout_ratio: 0.0
   dim_feedforward: 2048
-  loss_types: ['labels', 'boxes', 'masks']
+  loss_types: ['labels', 'boxes', 'masks', 'rela']
   aux_loss: False
   log_scale: auto
   class_embed_bias: True
+  num_region_queries: 100

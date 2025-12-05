@@ -75,6 +75,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: nginx
+    restart: unless-stopped
     ports:
       - "${NGINX_HTTP_PORT:-8090}:80"
       - "${NGINX_HTTPS_PORT:-8443}:443"
@@ -94,7 +95,7 @@ services:
     image: ${IMAGE_TAO_API:-nvcr.io/ea-tlt/tao_ea/tao-toolkit_5.0.0-tf2.11.0_2507_inf:latest}
     container_name: pretrained_models_init
     pull_policy: always
-    command: ["/bin/bash", "-c", "if [ \"${AIRGAPPED_MODE:-true}\" = \"true\" ]; then echo 'Skipping PTM pull in air-gapped mode'; exit 0; else if [ -d '${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages' ]; then python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/pretrained_models.py --org-teams=nvidia/tao,nvstaging/tao,ea-tlt/tao_ea; else python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/site-packages/nvidia_tao_core/microservices/pretrained_models.py --org-teams=nvidia/tao,nvstaging/tao,ea-tlt/tao_ea; fi; fi"]
+    command: ["/bin/bash", "-c", "if [ \"${AIRGAPPED_MODE:-true}\" = \"true\" ]; then echo 'Skipping PTM pull in air-gapped mode'; exit 0; else if [ -d '${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages' ]; then python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/dist-packages/nvidia_tao_core/microservices/pretrained_models.py --use-both --org-teams=nvidia/tao,nvstaging/tao; else python3 ${PYTHON_BASE_PATH:-/usr/local/lib/python}${PYTHON_VERSION:-3.12}/site-packages/nvidia_tao_core/microservices/pretrained_models.py --use-both --org-teams=nvidia/tao,nvstaging/tao; fi; fi"]
     privileged: true
     environment:
       HOST_PLATFORM: local-docker
@@ -138,6 +139,7 @@ services:
       LC_ALL: C.UTF-8
       AIRGAPPED_MODE: ${AIRGAPPED_MODE:-true}
       LOCAL_MODEL_REGISTRY: ${LOCAL_MODEL_REGISTRY:-/shared-storage/models}
+      TAO_LOG_LEVEL: ${LOG_LEVEL:-INFO}
     expose:
       - "8000"
     depends_on:
@@ -177,6 +179,7 @@ services:
       LC_ALL: C.UTF-8
       AIRGAPPED_MODE: ${AIRGAPPED_MODE:-true}
       LOCAL_MODEL_REGISTRY: ${LOCAL_MODEL_REGISTRY:-/shared-storage/models}
+      TAO_LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
       - mongodb
     networks:

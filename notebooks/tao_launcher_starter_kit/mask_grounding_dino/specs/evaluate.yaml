@@ -4,6 +4,7 @@ dataset:
   test_data_sources:
     image_dir: /data/raw-data/val2017/
     json_file: /data/odvg/annotations/instances_val2017_remapped.json
+    data_type: OD
   batch_size: 8
   workers: 8
 model:
@@ -14,6 +15,7 @@ model:
   num_queries: 900
   dropout_ratio: 0.0
   dim_feedforward: 2048
-  loss_types: ['labels', 'boxes', 'masks']
+  loss_types: ['labels', 'boxes', 'masks', 'rela']
   log_scale: auto
   class_embed_bias: True
+  num_region_queries: 100
