@@ -16,9 +16,9 @@ services:
   seaweedfs-master:
     image: chrislusf/seaweedfs:latest
     container_name: seaweedfs-master
-    command: 'master -ip=seaweedfs-master -port=9333 -defaultReplication=${SEAWEEDFS_REPLICATION:-000}'
+    command: 'master -ip=seaweedfs-master -port=${SEAWEEDFS_MASTER_PORT:-9333} -defaultReplication=${SEAWEEDFS_REPLICATION:-000}'
     ports:
-      - "9333:9333"
+      - "${SEAWEEDFS_MASTER_PORT:-9333}:${SEAWEEDFS_MASTER_PORT:-9333}"
     volumes:
       - seaweedfs_master_data:/data
     networks:
@@ -29,9 +29,9 @@ services:
   seaweedfs-volume:
     image: chrislusf/seaweedfs:latest
     container_name: seaweedfs-volume
-    command: 'volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data'
+    command: 'volume -mserver=seaweedfs-master:${SEAWEEDFS_MASTER_PORT:-9333} -ip=seaweedfs-volume -port=${SEAWEEDFS_VOLUME_PORT:-8080} -dir=/data'
     ports:
-      - "8080:8080"
+      - "${SEAWEEDFS_VOLUME_PORT:-8080}:${SEAWEEDFS_VOLUME_PORT:-8080}"
     volumes:
       - seaweedfs_volume_data:/data
     depends_on:
@@ -44,9 +44,9 @@ services:
   seaweedfs-filer:
     image: chrislusf/seaweedfs:latest
     container_name: seaweedfs-filer
-    command: 'filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -port=8888'
+    command: 'filer -master=seaweedfs-master:${SEAWEEDFS_MASTER_PORT:-9333} -ip=seaweedfs-filer -port=${SEAWEEDFS_FILER_PORT:-8888}'
     ports:
-      - "8888:8888"
+      - "${SEAWEEDFS_FILER_PORT:-8888}:${SEAWEEDFS_FILER_PORT:-8888}"
     volumes:
       - seaweedfs_filer_data:/data
     depends_on:
@@ -60,9 +60,9 @@ services:
   seaweedfs-s3:
     image: chrislusf/seaweedfs:latest
     container_name: seaweedfs-s3
-    command: 's3 -filer=seaweedfs-filer:8888 -ip.bind=0.0.0.0 -port=8333 -config=/etc/seaweedfs/s3.json'
+    command: 's3 -filer=seaweedfs-filer:${SEAWEEDFS_FILER_PORT:-8888} -ip.bind=0.0.0.0 -port=${SEAWEEDFS_S3_PORT:-8333} -config=/etc/seaweedfs/s3.json'
     ports:
-      - "8333:8333"
+      - "${SEAWEEDFS_S3_PORT:-8333}:${SEAWEEDFS_S3_PORT:-8333}"
     volumes:
       - ./s3-config.json:/etc/seaweedfs/s3.json:ro
     depends_on:
