@@ -15,8 +15,6 @@
 # A workflow to trigger ci on hybrid infra (github + self hosted runner)
 name: Blossom-CI
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -34,10 +32,9 @@ jobs:
     outputs:
       args: ${{ env.args }}
       
-    # This job runs automatically on PRs from authorized users, or on /build comment
+    # This job only runs for pull request comments
     if: |
-         (github.event_name == 'pull_request' && (github.actor == 'hqtran-nv' || github.actor == 'christinayyw')) ||
-         (github.event.comment.body == '/build' && (github.actor == 'hqtran-nv' || github.actor == 'christinayyw'))
+         github.event.comment.body == '/build' && (github.actor == 'hqtran-nv' || github.actor == 'christinayyw')  
     steps:
       - name: Check if comment is issued by authorized person
         run: blossom-ci
