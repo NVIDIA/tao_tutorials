@@ -1,4 +1,12 @@
 #!/bin/bash
+# Adapted from tensorflow/tpu (https://github.com/tensorflow/tpu)
+#   tools/datasets/download_and_preprocess_coco.sh
+# Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+# Licensed under the Apache License, Version 2.0.
+#
+# Modifications Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 # Script to download and preprocess the COCO data set
 #
 # usage:

@@ -1,3 +1,13 @@
+# NOTICE: This file is adapted from Google Research Datasets' Objectron project
+# (https://github.com/google-research-datasets/Objectron), specifically
+# objectron/dataset/parser.py. The upstream Objectron repository is distributed
+# under the Computational Use of Data Agreement v1.0 (C-UDA), which is NOT
+# Apache-2.0 and imposes use restrictions ("Computational Use" only).
+#
+# Modifications Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES.
+# Use of this file is subject to the upstream C-UDA terms. Do NOT relicense
+# under Apache-2.0 without legal review.
+#
 # Define the decoding functions.
 import numpy as np
 import cv2

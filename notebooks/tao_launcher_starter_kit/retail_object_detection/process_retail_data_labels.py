@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 """
 Convert the 2d object detection labels from 200-class format to binary class format
 """

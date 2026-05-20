@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 """
 Converts Retail Product Checkout (https://www.kaggle.com/datasets/diyer22/retail-product-checkout-dataset) dataset to classification dataset. Ready for MLRecogNet training.
 """

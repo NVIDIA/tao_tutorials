@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 def get_bounds_of_field(schema, field_path):
     """
     Extract minimum, maximum, and valid_options for a given field path from the schema.

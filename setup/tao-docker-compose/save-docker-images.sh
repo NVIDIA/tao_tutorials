@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 # TAO Docker Image Saver (bundled, JSON manifest, no meta files)
 # - Saves each image as .tar in OUTPUT_DIR
 # - Writes OUTPUT_DIR/manifest.json mapping tar -> exact image ref

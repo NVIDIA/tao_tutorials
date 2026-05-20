@@ -1,4 +1,5 @@
-# Copyright (c) 2017-2020, NVIDIA CORPORATION.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2017-2020 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 """Script to visualize the Ground truth masks overlay for Unet tutorial."""
 

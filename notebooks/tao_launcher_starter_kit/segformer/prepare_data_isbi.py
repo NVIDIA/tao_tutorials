@@ -1,4 +1,5 @@
-# Copyright (c) 2017-2020, NVIDIA CORPORATION.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2017-2020 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 """Script to prepare train/val dataset for Unet tutorial."""
 

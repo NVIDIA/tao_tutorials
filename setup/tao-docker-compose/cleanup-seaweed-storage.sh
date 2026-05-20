@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 # Clean up SeaweedFS S3 storage (tao-storage bucket).
 # Deletes all objects (datasets, shared-storage/models, job outputs). Does NOT clear workspaces:
 # workspace/experiment/job metadata live in MongoDB. To clear those run: ./run.sh clear-mongo
